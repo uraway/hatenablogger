@@ -1,0 +1,175 @@
+"use strict";
+// The module 'vscode' contains the VS Code extensibility API
+// Import the module and reference it with the alias vscode in your code below
+import * as vscode from "vscode";
+import Hatenablog from "./hatenablog";
+import Hatenafotolife from "./hatenafotolife";
+
+const contextCommentRegExp = /^<!--([\s\S]*?)-->\n?/;
+type Context = {
+  id: string;
+  title: string;
+  categories: string[];
+  draft: boolean;
+};
+
+// this method is called when your extension is activated
+// your extension is activated the very first time the command is executed
+export function activate(context: vscode.ExtensionContext) {
+  // Use the console to output diagnostic information (console.log) and errors (console.error)
+  // This line of code will only be executed once when your extension is activated
+  console.log('Congratulations, your extension "hatenablogger" is now active!');
+  const hatenablog = new Hatenablog();
+  const hatenafotolife = new Hatenafotolife();
+
+  const postCurrentFile = async () => {
+    const textEditor = vscode.window.activeTextEditor;
+    if (!textEditor) {
+      return;
+    }
+    const content = textEditor.document.getText();
+    const context = parseContext(content);
+
+    let titleValue = "";
+    let categoriesValue = "";
+    if (context) {
+      titleValue = context.title;
+      categoriesValue = context.categories;
+    }
+
+    const inputTitle = await vscode.window.showInputBox({
+      placeHolder: "Entry title",
+      prompt: "Please input an entry title",
+      value: titleValue
+    });
+
+    if (!inputTitle) {
+      return vscode.window.showErrorMessage("hatenablogger was cancelled");
+    }
+
+    const inputCategories = await vscode.window.showInputBox({
+      placeHolder: "Categories",
+      prompt: "Please input categories. (Comma deliminated)",
+      value: categoriesValue
+    });
+
+    const inputPublished = await vscode.window.showInputBox({
+      placeHolder: "yes",
+      prompt: 'Do you want to publish it? Type "yes" or save as draft'
+    });
+
+    if (inputPublished === undefined) {
+      return vscode.window.showErrorMessage("hatenablogger was cancelled");
+    }
+
+    const title = inputTitle;
+    const categories = inputCategories ? inputCategories.split(",") : [];
+    const isPublished = inputPublished === "yes";
+
+    const options = {
+      title,
+      content,
+      categories,
+      draft: !isPublished
+    };
+
+    try {
+      const res = await hatenablog.postOrUpdate(options);
+
+      const id = res.entry.id._.match(/^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/)[1];
+      const { hatenaId, blogId } = vscode.workspace.getConfiguration(
+        "hatenablogger"
+      );
+      const entryURL = isPublished
+        ? res.entry.link[1].$.href
+        : `http://blog.hatena.ne.jp/${hatenaId}/${blogId}/edit?entry=${id}`;
+
+      saveContext({
+        id,
+        title,
+        categories,
+        draft: !isPublished
+      });
+
+      vscode.window.showInformationMessage(
+        `Successfully posted at ${entryURL}`
+      );
+    } catch (err) {
+      console.error(err);
+      vscode.window.showErrorMessage(err.toString());
+    }
+  };
+
+  const uploadImage = async () => {
+    const file = await vscode.window.showOpenDialog({});
+    if (!file) {
+      return;
+    }
+    const textEditor = vscode.window.activeTextEditor;
+
+    if (textEditor && textEditor.selection.isEmpty) {
+      const position = textEditor.selection.active;
+      vscode.window.showInformationMessage("Uploading image...");
+
+      try {
+        const res = await hatenafotolife.upload({
+          title: file[0].path,
+          file: file[0].path
+        });
+        const imageurl = res.entry["hatena:imageurl"]._;
+        const markdown = `![](${imageurl})`;
+        textEditor.edit(edit => edit.insert(position, markdown));
+      } catch (err) {
+        console.error(err);
+        vscode.window.showErrorMessage(err.toString());
+      }
+    }
+  };
+
+  // The command has been defined in the package.json file
+  // Now provide the implementation of the command with  registerCommand
+  // The commandId parameter must match the command field in package.json
+  const disposables = [];
+  disposables.push(
+    vscode.commands.registerCommand(
+      "extension.postCurrentFile",
+      postCurrentFile
+    )
+  );
+
+  disposables.push(
+    vscode.commands.registerCommand("extension.uploadImage", uploadImage)
+  );
+
+  function saveContext(context: Context) {
+    const textEditor = vscode.window.activeTextEditor;
+    if (!textEditor) {
+      return;
+    }
+    const fileContent = removeContextComment(textEditor.document.getText());
+    const comment = `<!--\n${JSON.stringify(context)}\n-->\n${fileContent}`;
+
+    const firstPosition = new vscode.Position(0, 0);
+    const lastPosition = new vscode.Position(textEditor.document.lineCount, 0);
+    textEditor.edit(edit =>
+      edit.replace(new vscode.Range(firstPosition, lastPosition), comment)
+    );
+  }
+
+  function parseContext(content: string) {
+    const comment = content.match(contextCommentRegExp);
+    if (comment) {
+      return JSON.parse(comment[1]);
+    }
+    return null;
+  }
+
+  function removeContextComment(content: string) {
+    return content.replace(contextCommentRegExp, "");
+  }
+
+  context.subscriptions.concat(disposables);
+}
+
+// this method is called when your extension is deactivated
+export function deactivate() {}

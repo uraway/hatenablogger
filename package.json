@@ -1,0 +1,60 @@
+{
+  "name": "hatenablogger",
+  "displayName": "hatenablogger",
+  "description": "Post an entry to hatenablog via vscode",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.29.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.postCurrentFile",
+        "title": "Hatenablogger: Post Current File"
+      },
+      {
+        "command": "extension.uploadImage",
+        "title": "Hatenablogger: Upload Image"
+      }
+    ],
+    "configuration": {
+      "title": "Hatenablogger configuration",
+      "properties": {
+        "hatenablogger.hatenaId": {
+          "type": "string"
+        },
+        "hatenablogger.blogId": {
+          "type": "string"
+        },
+        "hatenablogger.apiKey": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "yarn run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^8.10.25",
+    "tslint": "^5.8.0",
+    "typescript": "^3.1.4",
+    "vscode": "^1.1.25"
+  },
+  "dependencies": {
+    "hatena-blog-api": "^0.3.0",
+    "hatena-fotolife-api": "^0.4.1"
+  }
+}
