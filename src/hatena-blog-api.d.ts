@@ -1,1 +1,1 @@
-declare module "hatena-blog-api";
+declare module "wsse";

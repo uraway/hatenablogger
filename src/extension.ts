@@ -10,7 +10,7 @@ type Context = {
   id: string;
   title: string;
   categories: string[];
-  draft: boolean;
+  draft: "yes" | "no";
 };
 
 // this method is called when your extension is activated
@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
   const hatenablog = new Hatenablog();
   const hatenafotolife = new Hatenafotolife();
 
-  const postCurrentFile = async () => {
+  const postOrUpdate = async () => {
     const textEditor = vscode.window.activeTextEditor;
     if (!textEditor) {
       return;
@@ -64,35 +64,36 @@ export function activate(context: vscode.ExtensionContext) {
 
     const title = inputTitle;
     const categories = inputCategories ? inputCategories.split(",") : [];
-    const isPublished = inputPublished === "yes";
+    const draft: "yes" | "no" = inputPublished === "yes" ? "no" : "yes";
 
     const options = {
+      id: context ? context.id : null,
       title,
       content,
       categories,
-      draft: !isPublished
+      draft
     };
 
     try {
-      const res = await hatenablog.postOrUpdate(options);
-
+      const res: any = await hatenablog.postOrUpdate(options);
       const id = res.entry.id._.match(/^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/)[1];
       const { hatenaId, blogId } = vscode.workspace.getConfiguration(
         "hatenablogger"
       );
-      const entryURL = isPublished
-        ? res.entry.link[1].$.href
-        : `http://blog.hatena.ne.jp/${hatenaId}/${blogId}/edit?entry=${id}`;
+      const entryURL =
+        draft === "no"
+          ? res.entry.link[1].$.href
+          : `http://blog.hatena.ne.jp/${hatenaId}/${blogId}/edit?entry=${id}`;
 
       saveContext({
         id,
         title,
         categories,
-        draft: !isPublished
+        draft
       });
 
       vscode.window.showInformationMessage(
-        `Successfully posted at ${entryURL}`
+        `Successfully ${context ? "updated" : "posted"} at ${entryURL}`
       );
     } catch (err) {
       console.error(err);
@@ -131,10 +132,7 @@ export function activate(context: vscode.ExtensionContext) {
   // The commandId parameter must match the command field in package.json
   const disposables = [];
   disposables.push(
-    vscode.commands.registerCommand(
-      "extension.postCurrentFile",
-      postCurrentFile
-    )
+    vscode.commands.registerCommand("extension.postOrUpdate", postOrUpdate)
   );
 
   disposables.push(
