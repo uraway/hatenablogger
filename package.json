@@ -10,7 +10,7 @@
   "bugs": {
     "url": "https://github.com/uraway/hatenablogger/issues"
   },
-  "version": "0.0.0",
+  "version": "0.0.1",
   "engines": {
     "vscode": "^1.29.0"
   },
