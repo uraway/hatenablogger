@@ -32,9 +32,13 @@ Upload image to fotolife and insert image url: `Hatenablogger: Upload Image`
 
 ## Release Notes
 
+### 0.0.3
+
+- Remove invalid control characters from entry content before posting it
+
 ### 0.0.2
 
-Update README.md
+- Update README.md
 
 ### 0.0.1
 

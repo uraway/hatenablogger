@@ -48,7 +48,7 @@ export default class Hatenablog {
           $: {
             type: "text/plain"
           },
-          _: content
+          _: this.sanitize(content)
         },
         category: categories.map(c => ({
           $: { term: c }
@@ -97,6 +97,7 @@ export default class Hatenablog {
       password: this.apiKey
     });
     const xml = await this.toXml(body);
+    console.log(xml);
     try {
       const res = await axios({
         method,
@@ -140,5 +141,10 @@ export default class Hatenablog {
         reject(err);
       }
     });
+  }
+
+  sanitize = (text: string) => {
+    // Remove invalid control characters
+    return text.replace(/\u0008/g, "");
   }
 }
