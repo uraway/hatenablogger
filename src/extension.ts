@@ -69,7 +69,7 @@ export function activate(context: vscode.ExtensionContext) {
     const options = {
       id: context ? context.id : null,
       title,
-      content,
+      content: removeContextComment(content),
       categories,
       draft
     };
