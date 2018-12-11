@@ -6,11 +6,21 @@ This is the extension which helps you to manage entries on HatenaBlog and images
 
 ### Post an entry
 
-\!\[feature X\]\(images/feature-x.png\)
+Post an entry and create a context: `Hatenablogger: Post or Update`
+
+![post-entry](./images/post-entry.gif)
 
 ### Update an entry
 
+If a context exists, try to update the entry: `Hatenablogger: Post or Update`
+
+![update-entry](./images/update-entry.gif)
+
 ### Upload Image
+
+Upload image to fotolife and insert image url: `Hatenablogger: Upload Image`
+
+![upload-image](./images/upload-image.gif)
 
 ## Extension Settings
 
@@ -21,6 +31,10 @@ This is the extension which helps you to manage entries on HatenaBlog and images
 ![](./images/api-key.png)
 
 ## Release Notes
+
+### 0.0.2
+
+Update README.md
 
 ### 0.0.1
 
