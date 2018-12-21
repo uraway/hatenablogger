@@ -1,6 +1,8 @@
 # hatenablogger
 
-This is the extension which helps you to manage entries on HatenaBlog and images on HatenaFotolife.
+This VSCode extension helps you to manage entries on HatenaBlog and images on HatenaFotolife.
+
+[日本語の解説エントリはこちら](http://uraway.hatenablog.com/entry/2018/12/12/001545)
 
 ## Features
 
