@@ -31,17 +31,3 @@ Upload image to fotolife and insert image url: `Hatenablogger: Upload Image`
 - `hatenablogger.apiKey`: [your API Key](http://blog.hatena.ne.jp/my/config/detail)
 
 ![](./images/api-key.png)
-
-## Release Notes
-
-### 0.0.3
-
-- Remove invalid control characters from entry content before posting it
-
-### 0.0.2
-
-- Update README.md
-
-### 0.0.1
-
-Initial release

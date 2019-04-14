@@ -6,4 +6,18 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.4]
+### Changed
+- Update hatena-fotolife-api
+
+## [0.0.3]
+### Added
+- Remove invalid control characters from entry content before posting it
+
+## [0.0.2]
+### Changed
+- Update README.md
+
+## [0.0.1]
+
 - Initial release
