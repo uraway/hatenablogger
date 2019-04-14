@@ -731,28 +731,16 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
-hatena-blog-api@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/hatena-blog-api/-/hatena-blog-api-0.3.0.tgz#f1021b386427211e5d7b11da746832d88e2fbce2"
-  integrity sha1-8QIbOGQnIR5dexHadGgy2I4vvOI=
+hatena-fotolife-api@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/hatena-fotolife-api/-/hatena-fotolife-api-1.0.0.tgz#40b1ffe6c276529858c2dadd8ca0fa47a84a486d"
+  integrity sha512-WgoTb6T6GW7nZnMW4gG8x3IE/B8il6ykL1VKwvDGA8nGx4FDBQU7kpMfy6lTSOTA5q2V7JdaJXE97KIZAgVbhQ==
   dependencies:
+    mime "^2.4.0"
     oauth "^0.9.12"
-    q "^1.0.1"
     request "^2.40.0"
-    wsse "0.0.3"
-    xml2js "^0.4.4"
-
-hatena-fotolife-api@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/hatena-fotolife-api/-/hatena-fotolife-api-0.4.1.tgz#3dc378542ac95de30bb87efb01d95cf41268d08d"
-  integrity sha1-PcN4VCrJXeMLuH77Adlc9BJo0I0=
-  dependencies:
-    mime "^1.2.11"
-    oauth "^0.9.12"
-    q "^1.0.1"
-    request "^2.40.0"
-    wsse "0.0.3"
-    xml2js "^0.4.4"
+    wsse "^3.0.0"
+    xml2js "^0.4.19"
 
 he@1.1.1:
   version "1.1.1"
@@ -966,10 +954,10 @@ mime-types@^2.1.12, mime-types@~2.1.19:
   dependencies:
     mime-db "~1.37.0"
 
-mime@^1.2.11:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/mime/-/mime-1.6.0.tgz#32cd9e5c64553bd58d19a568af452acff04981b1"
-  integrity sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==
+mime@^2.4.0:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/mime/-/mime-2.4.2.tgz#ce5229a5e99ffc313abac806b482c10e7ba6ac78"
+  integrity sha512-zJBfZDkwRu+j3Pdd2aHsR5GfH2jIWhmL1ZzBoc+X+3JEti2hbArWcyJ+1laC1D2/U/W1a/+Cegj0/OnEU2ybjg==
 
 minimatch@^3.0.0, minimatch@^3.0.4:
   version "3.0.4"
@@ -1161,11 +1149,6 @@ punycode@^2.1.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
-
-q@^1.0.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
-  integrity sha1-fjL3W0E4EpHQRhHxvxQQmsAGUdc=
 
 qs@~6.5.2:
   version "6.5.2"
@@ -1691,17 +1674,17 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
 
-wsse@0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/wsse/-/wsse-0.0.3.tgz#d8fb18af2e4013403452349755b71a23034fee9e"
-  integrity sha1-2PsYry5AE0A0UjSXVbcaIwNP7p4=
-
 wsse@^2.4.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/wsse/-/wsse-2.4.0.tgz#6e8979b053cd29ca93c2d1832948906c120602ab"
   integrity sha1-bol5sFPNKcqTwtGDKUiQbBIGAqs=
 
-xml2js@^0.4.19, xml2js@^0.4.4:
+wsse@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/wsse/-/wsse-3.0.0.tgz#971a6df6905ab98b8c8edc06f105500be9e317fd"
+  integrity sha512-LdwQAQRiCNPcaJxIV4fxKLem5LKr1pBaf0kVNuKn1ADTmhjXxdEsC4dvuh3Gynoo+C/M4xV5slv6tegXocobWg==
+
+xml2js@^0.4.19:
   version "0.4.19"
   resolved "https://registry.yarnpkg.com/xml2js/-/xml2js-0.4.19.tgz#686c20f213209e94abf0d1bcf1efaa291c7827a7"
   integrity sha512-esZnJZJOiJR9wWKMyuvSE1y6Dq5LCuJanqhxslH2bxM6duahNZ+HMpCLhBQGZkbX6xRf8x1Y2eJlgt2q3qo49Q==
