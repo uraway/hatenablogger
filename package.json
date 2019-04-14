@@ -65,8 +65,7 @@
     "@types/axios": "^0.14.0",
     "@types/xml2js": "^0.4.3",
     "axios": "^0.18.0",
-    "hatena-blog-api": "^0.3.0",
-    "hatena-fotolife-api": "^0.4.1",
+    "hatena-fotolife-api": "^1.0.0",
     "wsse": "^2.4.0",
     "xml2js": "^0.4.19"
   }

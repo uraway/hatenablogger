@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import * as fotolife from "hatena-fotolife-api";
+import fotolife from "hatena-fotolife-api";
 
 export default class Hatenafotolife {
   private client: any;
