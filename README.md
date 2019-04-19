@@ -1,4 +1,5 @@
 # hatenablogger
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
 
 This VSCode extension helps you to manage entries on HatenaBlog and images on HatenaFotolife.
 
@@ -31,3 +32,22 @@ Upload image to fotolife and insert image url: `Hatenablogger: Upload Image`
 - `hatenablogger.apiKey`: [your API Key](http://blog.hatena.ne.jp/my/config/detail)
 
 ![](./images/api-key.png)
+
+## Contributing
+
+1. Fork this repo and Clone it!
+2. Commit and Push your changes.
+3. If you contributed something new, run yarn contrib:add <your GitHub username>
+4. Finally submit a pull request :D
+
+## Contributors
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore -->
+<table><tr><td align="center"><a href="http://uraway.hatenablog.com/"><img src="https://avatars3.githubusercontent.com/u/15242484?v=4" width="100px;" alt="Masato Urai (@uraway_)"/><br /><sub><b>Masato Urai (@uraway_)</b></sub></a><br /><a href="https://github.com/uraway/hatenablogger/commits?author=uraway" title="Documentation">📖</a> <a href="https://github.com/uraway/hatenablogger/commits?author=uraway" title="Code">💻</a></td></tr></table>
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
