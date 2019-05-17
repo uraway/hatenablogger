@@ -102,10 +102,11 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   const uploadImage = async () => {
-    const file = await vscode.window.showOpenDialog({});
-    if (!file) {
+    const uri = await vscode.window.showOpenDialog({});
+    if (!uri) {
       return;
     }
+    const file = uri[0];
     const textEditor = vscode.window.activeTextEditor;
 
     if (textEditor && textEditor.selection.isEmpty) {
@@ -114,8 +115,8 @@ export function activate(context: vscode.ExtensionContext) {
 
       try {
         const res = await hatenafotolife.upload({
-          title: file[0].path,
-          file: file[0].path
+          title: file.fsPath,
+          file: file.fsPath
         });
         const imageurl = res.entry["hatena:imageurl"]._;
         const markdown = `![](${imageurl})`;
