@@ -115,7 +115,6 @@ export function activate(context: vscode.ExtensionContext) {
 
       try {
         const res = await hatenafotolife.upload({
-          title: file.fsPath,
           file: file.fsPath
         });
         const imageurl = res.entry["hatena:imageurl"]._;

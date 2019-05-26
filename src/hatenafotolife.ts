@@ -15,7 +15,7 @@ export default class Hatenafotolife {
     });
   }
 
-  upload = (options: { title: string; file: string }) => {
+  upload = (options: { file: string }) => {
     return this.client.create(options);
   }
 }
