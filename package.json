@@ -44,6 +44,10 @@
         },
         "hatenablogger.apiKey": {
           "type": "string"
+        },
+        "hatenablogger.fotolifeFolder": {
+          "type": "string",
+          "default": "Hatena Blog"
         }
       }
     }

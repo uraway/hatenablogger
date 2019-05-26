@@ -16,6 +16,12 @@ export default class Hatenafotolife {
   }
 
   upload = (options: { file: string }) => {
-    return this.client.create(options);
+    const { fotolifeFolder } = vscode.workspace.getConfiguration(
+      "hatenablogger"
+    );
+    return this.client.create({
+      ...options,
+      folder: fotolifeFolder
+    });
   }
 }
