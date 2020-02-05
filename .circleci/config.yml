@@ -31,6 +31,9 @@ jobs:
       - attach_workspace:
           at: ./
       - run: npx vsce publish --yarn -p ${VSCODE_MARKETPLACE_TOKEN}
+      - add_ssh_keys:
+          fingerprints:
+            - 69:b1:99:a9:aa:ba:93:a0:e2:1f:62:a4:c2:63:c2:c5
       - run: |
           EXTENSION_ID=uraway.hatenablogger
           TAG=$(npx vsce show ${EXTENSION_ID} | grep Version: | sed -E 's|Version:||' | sed -E 's| ||g')
