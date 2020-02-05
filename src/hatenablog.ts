@@ -97,7 +97,6 @@ export default class Hatenablog {
       password: this.apiKey
     });
     const xml = await this.toXml(body);
-    console.log(xml);
     try {
       const res = await axios({
         method,

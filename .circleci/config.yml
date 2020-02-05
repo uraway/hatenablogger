@@ -1,0 +1,50 @@
+version: 2.1
+
+executors:
+  default:
+    docker:
+      - image: circleci/node:12-browsers
+jobs:
+  test:
+    executor: default
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-yarn-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - v1-yarn-cache-{{ .Branch }}
+            - v1-yarn-cache-
+      - run: yarn install
+      - save_cache:
+          key: v1-yarn-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+      - run: yarn test
+      - persist_to_workspace:
+            root: ./
+            paths:
+              - node_modules
+  publish:
+    executor: default
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ./
+      - run: yarn global add vsce
+      - run: vsce publish --yarn -p ${VSCODE_MARKETPLACE_TOKEN}
+      - run: |
+          EXTENSION_ID=uraway.hatenablogger
+          TAG=$(vsce show ${EXTENSION_ID} | grep Version: | sed -E 's|Version:||' | sed -E 's| ||g')
+          git config --global user.name "$CIRCLE_USERNAME"
+          git config --global user.email "$CIRCLE_USERNAME@users.noreply.github.com"
+          git tag -a "$TAG" -m "View CHANGELOG: https://marketplace.visualstudio.com/items/${EXTENSION_ID}/changelog"
+          git push origin "$TAG"
+workflows:
+  main:
+    jobs:
+      - test
+      - publish:
+          requires: [test]
+          filters:
+            branches:
+              only: [master]

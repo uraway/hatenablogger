@@ -4,6 +4,7 @@
 import * as vscode from "vscode";
 import Hatenablog from "./hatenablog";
 import Hatenafotolife from "./hatenafotolife";
+import { basename } from "path";
 
 const contextCommentRegExp = /^<!--([\s\S]*?)-->\n?/;
 type Context = {
@@ -115,7 +116,8 @@ export function activate(context: vscode.ExtensionContext) {
 
       try {
         const res = await hatenafotolife.upload({
-          file: file.fsPath
+          file: file.fsPath,
+          title: basename(file.fsPath)
         });
         const imageurl = res.entry["hatena:imageurl"]._;
         const markdown = `![](${imageurl})`;
