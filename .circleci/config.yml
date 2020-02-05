@@ -33,7 +33,7 @@ jobs:
       - run: npx vsce publish --yarn -p ${VSCODE_MARKETPLACE_TOKEN}
       - run: |
           EXTENSION_ID=uraway.hatenablogger
-          TAG=$(vsce show ${EXTENSION_ID} | grep Version: | sed -E 's|Version:||' | sed -E 's| ||g')
+          TAG=$(npx vsce show ${EXTENSION_ID} | grep Version: | sed -E 's|Version:||' | sed -E 's| ||g')
           git config --global user.name "$CIRCLE_USERNAME"
           git config --global user.email "$CIRCLE_USERNAME@users.noreply.github.com"
           git tag -a "$TAG" -m "View CHANGELOG: https://marketplace.visualstudio.com/items/${EXTENSION_ID}/changelog"
