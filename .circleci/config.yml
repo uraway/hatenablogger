@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  vsce: uraway/vsce@0.0.1
+  vsce: uraway/vsce@0.0.3
 
 jobs:
   test:
