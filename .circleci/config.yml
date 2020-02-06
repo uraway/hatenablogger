@@ -1,52 +1,47 @@
 version: 2.1
 
-executors:
-  default:
-    docker:
-      - image: circleci/node:12-browsers
+orbs:
+  vsce: uraway/vsce@0.0.1
+
 jobs:
   test:
-    executor: default
+    executor: vsce/node-browsers
     steps:
       - checkout
       - restore_cache:
           keys:
-            - v1-yarn-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
-            - v1-yarn-cache-{{ .Branch }}
-            - v1-yarn-cache-
+            - v1-node-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - v1-node-cache-{{ .Branch }}
+            - v1-node-cache-
       - run: yarn install
       - save_cache:
-          key: v1-yarn-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          key: v1-node-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
       - run: yarn test
-      - persist_to_workspace:
-            root: ./
-            paths:
-              - node_modules
-  publish:
-    executor: default
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ./
-      - run: npx vsce publish --yarn -p ${VSCODE_MARKETPLACE_TOKEN}
-      - add_ssh_keys:
-          fingerprints:
-            - 69:b1:99:a9:aa:ba:93:a0:e2:1f:62:a4:c2:63:c2:c5
-      - run: |
-          EXTENSION_ID=uraway.hatenablogger
-          TAG=$(npx vsce show ${EXTENSION_ID} | grep Version: | sed -E 's|Version:||' | sed -E 's| ||g')
-          git config --global user.name "$CIRCLE_USERNAME"
-          git config --global user.email "$CIRCLE_USERNAME@users.noreply.github.com"
-          git tag -a "$TAG" -m "View CHANGELOG: https://marketplace.visualstudio.com/items/${EXTENSION_ID}/changelog"
-          git push origin "$TAG"
+
 workflows:
-  main:
+  test-publish:
     jobs:
       - test
-      - publish:
-          requires: [test]
+      - vsce/publish:
+          publish-token-variable: VSCODE_MARKETPLACE_TOKEN
+          push-git-tag: true
+          ssh-fingerprints: 69:b1:99:a9:aa:ba:93:a0:e2:1f:62:a4:c2:63:c2:c5
+          prefer-yarn: true
+          pre-install-steps:
+            - restore_cache:
+                keys:
+                  - v1-node-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
+                  - v1-node-cache-{{ .Branch }}
+                  - v1-node-cache-
+          post-install-steps:
+            - save_cache:
+                key: v1-node-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
+                paths:
+                  - node_modules
+          requires:
+            - test
           filters:
             branches:
-              only: [master]
+              only: master
