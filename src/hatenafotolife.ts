@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import fotolife from "hatena-fotolife-api";
+import fotolife, { Fotolife } from "hatena-fotolife-api";
 
 type ResponseBody = {
   entry: {
@@ -11,7 +11,7 @@ type ResponseBody = {
 
 export default class Hatenafotolife {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private client: any;
+  private client: Fotolife;
 
   constructor() {
     const { hatenaId, apiKey } = vscode.workspace.getConfiguration(
