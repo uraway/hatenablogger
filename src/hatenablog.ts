@@ -3,6 +3,39 @@ import axios from "axios";
 import * as xml2js from "xml2js";
 import * as wsse from "wsse";
 
+type ResponseBody = {
+  entry: {
+    id: {
+      _: string;
+    };
+    link: {
+      $: {
+        href: string;
+      };
+    }[];
+  };
+};
+
+type RequestBody = {
+  entry: {
+    $: {
+      xmlns: "http://www.w3.org/2005/Atom";
+      "xmlns:app": "http://www.w3.org/2007/app";
+    };
+    title: {
+      _: string;
+    };
+    content: {
+      $: {
+        type: "text/plain";
+      };
+      _: string;
+    };
+    category: { $: { term: string } }[];
+    "app:control": { "app:draft": { _: "yes" | "no" } };
+  };
+};
+
 export default class Hatenablog {
   private hatenaId: string;
   private blogId: string;
@@ -23,9 +56,9 @@ export default class Hatenablog {
     content: string;
     categories: string[];
     draft: "yes" | "no";
-  }) => {
+  }): Promise<ResponseBody> => {
     return options.id ? this.update(options) : this.post(options);
-  }
+  };
 
   createBody = (options: {
     title: string;
@@ -33,36 +66,36 @@ export default class Hatenablog {
     updated?: string;
     categories: string[];
     draft: "yes" | "no";
-  }) => {
+  }): RequestBody => {
     const { title, content, updated, categories, draft } = options;
-    const body = {
+    const body: RequestBody = {
       entry: {
         $: {
           xmlns: "http://www.w3.org/2005/Atom",
-          "xmlns:app": "http://www.w3.org/2007/app"
+          "xmlns:app": "http://www.w3.org/2007/app",
         },
         title: {
-          _: title
+          _: title,
         },
         content: {
           $: {
-            type: "text/plain"
+            type: "text/plain",
           },
-          _: this.sanitize(content)
+          _: this.sanitize(content),
         },
-        category: categories.map(c => ({
-          $: { term: c }
+        category: categories.map((c) => ({
+          $: { term: c },
         })),
-        "app:control": { "app:draft": { _: draft } }
-      }
+        "app:control": { "app:draft": { _: draft } },
+      },
     };
     if (updated) {
       Object.assign(body.entry, {
-        body: { entry: { updated: { _: updated } } }
+        body: { entry: { updated: { _: updated } } },
       });
     }
     return body;
-  }
+  };
 
   post = (options: {
     title: string;
@@ -70,11 +103,11 @@ export default class Hatenablog {
     categories: string[];
     updated?: string;
     draft: "yes" | "no";
-  }) => {
+  }): Promise<ResponseBody> => {
     const body = this.createBody(options);
     const path = `/${this.hatenaId}/${this.blogId}/atom/entry`;
     return this.request({ method: "POST", path, body });
-  }
+  };
 
   update = (options: {
     id?: string;
@@ -83,18 +116,22 @@ export default class Hatenablog {
     categories: string[];
     updated?: string;
     draft: "yes" | "no";
-  }) => {
+  }): Promise<ResponseBody> => {
     const { id } = options;
     const body = this.createBody(options);
     const path = `/${this.hatenaId}/${this.blogId}/atom/entry/${id}`;
     return this.request({ method: "PUT", path, body });
-  }
+  };
 
-  request = async (options: { method: string; path: string; body: object }) => {
+  request = async (options: {
+    method: string;
+    path: string;
+    body: Record<string, unknown>;
+  }): Promise<ResponseBody> => {
     const { method, path, body } = options;
     const token = wsse({
       username: this.hatenaId,
-      password: this.apiKey
+      password: this.apiKey,
     });
     const xml = await this.toXml(body);
     try {
@@ -105,22 +142,22 @@ export default class Hatenablog {
         headers: {
           "Content-Type": "text/xml",
           Authorization: 'WSSE profile="UsernameToken',
-          "X-WSSE": token.getWSSEHeader()
-        }
+          "X-WSSE": token.getWSSEHeader(),
+        },
       });
       return this.toJson(res.data);
     } catch (err) {
-      throw err.response.data;
+      throw err.ResponseBody.data;
     }
-  }
+  };
 
-  toJson = (xml: string) => {
+  toJson = <T>(xml: string): Promise<T> => {
     return new Promise((resolve, reject) => {
       const parser = new xml2js.Parser({
         explicitArray: false,
-        explicitCharkey: true
+        explicitCharkey: true,
       });
-      parser.parseString(xml, (err: object, result: object) => {
+      parser.parseString(xml, (err: Record<string, unknown>, result: T) => {
         if (err) {
           reject(err);
         } else {
@@ -128,9 +165,9 @@ export default class Hatenablog {
         }
       });
     });
-  }
+  };
 
-  toXml = (json: object) => {
+  toXml = (json: Record<string, unknown>): Promise<string> => {
     const builder = new xml2js.Builder();
     return new Promise((resolve, reject) => {
       try {
@@ -140,10 +177,10 @@ export default class Hatenablog {
         reject(err);
       }
     });
-  }
+  };
 
-  sanitize = (text: string) => {
+  sanitize = (text: string): string => {
     // Remove invalid control characters
-    return text.replace(/\u0008/g, "");
-  }
+    return text.replace(/\u08/g, "");
+  };
 }
