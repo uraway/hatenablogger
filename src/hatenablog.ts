@@ -140,8 +140,11 @@ export default class Hatenablog {
         url: `https://blog.hatena.ne.jp${path}`,
         data: xml,
         headers: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           "Content-Type": "text/xml",
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           Authorization: 'WSSE profile="UsernameToken',
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           "X-WSSE": token.getWSSEHeader(),
         },
       });
