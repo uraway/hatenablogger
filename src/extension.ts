@@ -19,7 +19,7 @@ type Context = {
 export function activate(context: vscode.ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "hatenablogger" is now active!');
+  console.log('Congratulations, your extension "hatenablogger" v0.1.11 is now active!');
   const hatenablog = new Hatenablog();
   const hatenafotolife = new Hatenafotolife();
 
