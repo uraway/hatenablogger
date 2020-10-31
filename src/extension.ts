@@ -43,7 +43,7 @@ export function activate(context: vscode.ExtensionContext): void {
     });
 
     if (!inputTitle) {
-      return vscode.window.showErrorMessage("hatenablogger was cancelled");
+      return vscode.window.showErrorMessage("title is required");
     }
 
     const inputCategories = await vscode.window.showInputBox({
