@@ -84,7 +84,7 @@ export function activate(context: vscode.ExtensionContext): void {
         "hatenablogger"
       );
       const entryURL =
-        draft === "no"
+        draft !== "yes"
           ? res.entry.link[1].$.href
           : `http://blog.hatena.ne.jp/${hatenaId}/${blogId}/edit?entry=${id}`;
 
@@ -116,14 +116,20 @@ export function activate(context: vscode.ExtensionContext): void {
       const position = textEditor.selection.active;
       vscode.window.showInformationMessage("Uploading image...");
 
+      const title = await vscode.window.showInputBox({
+        placeHolder: "Title",
+        prompt: "Please input title",
+        value: basename(file.fsPath),
+      });
       try {
         const res = await hatenafotolife.upload({
           file: file.fsPath,
-          title: basename(file.fsPath),
+          title: title ?? basename(file.fsPath),
         });
         const imageurl = res.entry["hatena:imageurl"]._;
-        const markdown = `![](${imageurl})`;
+        const markdown = `![${title}](${imageurl})`;
         textEditor.edit((edit) => edit.insert(position, markdown));
+        vscode.window.showInformationMessage("Successfully image uploaded!");
       } catch (err) {
         console.error(err);
         vscode.window.showErrorMessage(err.toString());
