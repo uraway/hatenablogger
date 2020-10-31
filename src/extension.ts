@@ -8,7 +8,7 @@ import { basename } from "path";
 
 const contextCommentRegExp = /^<!--([\s\S]*?)-->\n?/;
 type Context = {
-  id: string;
+  id?: string;
   title: string;
   categories: string[];
   draft: "yes" | "no";
@@ -16,10 +16,12 @@ type Context = {
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "hatenablogger" v0.1.11 is now active!');
+  console.log(
+    'Congratulations, your extension "hatenablogger" v0.1.13 is now active!'
+  );
   const hatenablog = new Hatenablog();
   const hatenafotolife = new Hatenafotolife();
 
@@ -41,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
     const inputTitle = await vscode.window.showInputBox({
       placeHolder: "Entry title",
       prompt: "Please input an entry title",
-      value: titleValue
+      value: titleValue,
     });
 
     if (!inputTitle) {
@@ -51,12 +53,12 @@ export function activate(context: vscode.ExtensionContext) {
     const inputCategories = await vscode.window.showInputBox({
       placeHolder: "Categories",
       prompt: "Please input categories. (Comma deliminated)",
-      value: categoriesValue
+      value: categoriesValue,
     });
 
     const inputPublished = await vscode.window.showInputBox({
       placeHolder: "yes",
-      prompt: 'Do you want to publish it? Type "yes" or save as draft'
+      prompt: 'Do you want to publish it? Type "yes" or save as draft',
     });
 
     if (inputPublished === undefined) {
@@ -68,16 +70,16 @@ export function activate(context: vscode.ExtensionContext) {
     const draft: "yes" | "no" = inputPublished === "yes" ? "no" : "yes";
 
     const options = {
-      id: context ? context.id : null,
+      id: context?.id,
       title,
       content: removeContextComment(content),
       categories,
-      draft
+      draft,
     };
 
     try {
-      const res: any = await hatenablog.postOrUpdate(options);
-      const id = res.entry.id._.match(/^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/)[1];
+      const res = await hatenablog.postOrUpdate(options);
+      const id = res.entry.id._.match(/^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/)?.[1];
       const { hatenaId, blogId } = vscode.workspace.getConfiguration(
         "hatenablogger"
       );
@@ -90,7 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
         id,
         title,
         categories,
-        draft
+        draft,
       });
 
       vscode.window.showInformationMessage(
@@ -117,11 +119,11 @@ export function activate(context: vscode.ExtensionContext) {
       try {
         const res = await hatenafotolife.upload({
           file: file.fsPath,
-          title: basename(file.fsPath)
+          title: basename(file.fsPath),
         });
         const imageurl = res.entry["hatena:imageurl"]._;
         const markdown = `![](${imageurl})`;
-        textEditor.edit(edit => edit.insert(position, markdown));
+        textEditor.edit((edit) => edit.insert(position, markdown));
       } catch (err) {
         console.error(err);
         vscode.window.showErrorMessage(err.toString());
@@ -151,7 +153,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     const firstPosition = new vscode.Position(0, 0);
     const lastPosition = new vscode.Position(textEditor.document.lineCount, 0);
-    textEditor.edit(edit =>
+    textEditor.edit((edit) =>
       edit.replace(new vscode.Range(firstPosition, lastPosition), comment)
     );
   }
@@ -172,4 +174,5 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export function deactivate(): void {}
