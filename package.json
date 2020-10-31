@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/uraway/hatenablogger/issues"
   },
-  "version": "0.1.11",
+  "version": "0.1.12",
   "engines": {
     "vscode": "^1.50.0"
   },
@@ -82,9 +82,9 @@
     "webpack-cli": "^3.3.10"
   },
   "dependencies": {
-    "axios": "^0.18.1",
+    "axios": "0.21.0",
     "hatena-fotolife-api": "2.0.0",
-    "wsse": "^2.4.0",
+    "wsse": "5.1.0",
     "xml2js": "^0.4.19"
   }
 }

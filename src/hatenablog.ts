@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import * as xml2js from "xml2js";
-import * as wsse from "wsse";
+import wsse from "wsse";
 
 export default class Hatenablog {
   private hatenaId: string;
@@ -90,7 +90,7 @@ export default class Hatenablog {
     return this.request({ method: "PUT", path, body });
   }
 
-  request = async (options: { method: string; path: string; body: object }) => {
+  request = async (options: { method: AxiosRequestConfig['method'], path: string; body: object }) => {
     const { method, path, body } = options;
     const token = wsse({
       username: this.hatenaId,
