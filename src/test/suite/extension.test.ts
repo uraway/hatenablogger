@@ -13,7 +13,7 @@ import * as vscode from "vscode";
 // import * as myExtension from '../extension';
 
 // Defines a Mocha test suite to group tests of similar kind together
-suite("Extension Tests", function() {
+suite("Extension Tests", function () {
   test("config test", () => {
     const config = vscode.workspace.getConfiguration("hatenablogger");
     assert.equal("", config.hatenaId);
