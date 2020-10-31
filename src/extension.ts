@@ -12,6 +12,7 @@ type Context = {
   title: string;
   categories: string[];
   draft: "yes" | "no";
+  updated: string;
 };
 
 // this method is called when your extension is activated
@@ -20,7 +21,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log(
-    'Congratulations, your extension "hatenablogger" v0.2.0 is now active!'
+    'Congratulations, your extension "hatenablogger" v0.3.0 is now active!'
   );
   const hatenablog = new Hatenablog();
   const hatenafotolife = new Hatenafotolife();
@@ -33,12 +34,8 @@ export function activate(context: vscode.ExtensionContext): void {
     const content = textEditor.document.getText();
     const context = parseContext(content);
 
-    let titleValue = "";
-    let categoriesValue = "";
-    if (context) {
-      titleValue = context.title;
-      categoriesValue = context.categories;
-    }
+    const titleValue = context?.title ?? "";
+    const categoriesValue = context?.categories.toString() ?? "";
 
     const inputTitle = await vscode.window.showInputBox({
       placeHolder: "Entry title",
@@ -47,7 +44,7 @@ export function activate(context: vscode.ExtensionContext): void {
     });
 
     if (!inputTitle) {
-      return vscode.window.showErrorMessage("hatenablogger was cancelled");
+      return vscode.window.showErrorMessage("title is required");
     }
 
     const inputCategories = await vscode.window.showInputBox({
@@ -55,6 +52,17 @@ export function activate(context: vscode.ExtensionContext): void {
       prompt: "Please input categories. (Comma deliminated)",
       value: categoriesValue,
     });
+
+    /**
+     * if context exists, use context.updated as default value.
+     * unless, use now as default value
+     */
+    // const now = dayjs(new Date()).format("YYYY-MM-DDTHH:mm:ssZ");
+    // const inputUpdated = await vscode.window.showInputBox({
+    //   placeHolder: now,
+    //   prompt: "Updated at",
+    //   value: context?.updated ?? now,
+    // });
 
     const inputPublished = await vscode.window.showInputBox({
       placeHolder: "yes",
@@ -65,15 +73,15 @@ export function activate(context: vscode.ExtensionContext): void {
       return vscode.window.showErrorMessage("hatenablogger was cancelled");
     }
 
-    const title = inputTitle;
     const categories = inputCategories ? inputCategories.split(",") : [];
     const draft: "yes" | "no" = inputPublished === "yes" ? "no" : "yes";
 
     const options = {
       id: context?.id,
-      title,
+      title: inputTitle,
       content: removeContextComment(content),
       categories,
+      // updated: inputUpdated,
       draft,
     };
 
@@ -90,8 +98,9 @@ export function activate(context: vscode.ExtensionContext): void {
 
       saveContext({
         id,
-        title,
+        title: res.entry.title._,
         categories,
+        updated: res.entry.updated._,
         draft,
       });
 
@@ -164,7 +173,7 @@ export function activate(context: vscode.ExtensionContext): void {
     );
   }
 
-  function parseContext(content: string) {
+  function parseContext(content: string): null | Context {
     const comment = content.match(contextCommentRegExp);
     if (comment) {
       return JSON.parse(comment[1]);

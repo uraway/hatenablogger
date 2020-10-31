@@ -37,6 +37,8 @@ type Response = {
       _: string;
     };
     link: Array<{ $: { href: string } }>;
+    title: { _: string };
+    updated: { _: string };
   };
 };
 
@@ -71,7 +73,7 @@ export default class Hatenablog {
     categories: string[];
     draft: "yes" | "no";
   }): Body => {
-    const { title, content, updated, categories, draft } = options;
+    const { title, content, categories, draft } = options;
     const body = {
       entry: {
         $: {
@@ -90,14 +92,13 @@ export default class Hatenablog {
         category: categories.map((c) => ({
           $: { term: c },
         })),
+        // updated: {
+        //   _: updated,
+        // },
         "app:control": { "app:draft": { _: draft } },
       },
     };
-    if (updated) {
-      Object.assign(body.entry, {
-        body: { entry: { updated: { _: updated } } },
-      });
-    }
+
     return body;
   };
 
