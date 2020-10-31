@@ -33,12 +33,8 @@ export function activate(context: vscode.ExtensionContext): void {
     const content = textEditor.document.getText();
     const context = parseContext(content);
 
-    let titleValue = "";
-    let categoriesValue = "";
-    if (context) {
-      titleValue = context.title;
-      categoriesValue = context.categories;
-    }
+    const titleValue = context.title ?? "";
+    const categoriesValue = context.categories ?? "";
 
     const inputTitle = await vscode.window.showInputBox({
       placeHolder: "Entry title",
