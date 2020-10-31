@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  vsce: uraway/vsce@0.0.3
+  vsce: uraway/vsce@0.0.4
 
 jobs:
   test:
@@ -18,7 +18,11 @@ jobs:
           key: v1-node-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
-      - run: yarn test
+      - run: sudo apt update && sudo apt install libxss1 xvfb
+      - run: |
+          export DISPLAY=':99.0'
+          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          yarn test
 
 workflows:
   test-publish:
