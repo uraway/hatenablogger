@@ -1,35 +1,35 @@
-import * as vscode from "vscode";
-import fotolife, { Fotolife } from "hatena-fotolife-api";
+import * as vscode from 'vscode'
+import fotolife, { Fotolife } from 'hatena-fotolife-api'
 
 type Response = {
   entry: {
-    "hatena:imageurl": {
-      _: string;
-    };
-  };
-};
+    'hatena:imageurl': {
+      _: string
+    }
+  }
+}
 
 export default class Hatenafotolife {
-  private client: Fotolife;
+  private client: Fotolife
 
   constructor() {
     const { hatenaId, apiKey } = vscode.workspace.getConfiguration(
-      "hatenablogger"
-    );
+      'hatenablogger'
+    )
     this.client = fotolife({
-      type: "wsse",
+      type: 'wsse',
       username: hatenaId,
       apikey: apiKey,
-    });
+    })
   }
 
   upload = (options: { file: string; title: string }): Promise<Response> => {
     const { fotolifeFolder } = vscode.workspace.getConfiguration(
-      "hatenablogger"
-    );
+      'hatenablogger'
+    )
     return this.client.create({
       ...options,
       folder: fotolifeFolder,
-    });
-  };
+    })
+  }
 }
