@@ -1,0 +1,6 @@
+{
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "workbench.editor.enablePreview": true,
+  "files.simpleDialog.enable": true,
+  "window.dialogStyle": "custom"
+}
