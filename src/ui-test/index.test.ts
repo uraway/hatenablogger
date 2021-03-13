@@ -8,7 +8,9 @@ import {
   TextEditor,
 } from 'vscode-extension-tester'
 import { DialogHandler } from 'vscode-extension-tester-native'
+import { LinuxOpenDialog } from 'vscode-extension-tester-native/out/openDialog'
 import { expect } from 'chai'
+import { dialogSellectPath } from './utils/dialogSelectPath'
 
 // Test suite is in standard Mocha BDD format
 describe('UI Tests', () => {
@@ -75,10 +77,7 @@ describe('UI Tests', () => {
       expect(await notification.getType()).equals(NotificationType.Info)
 
       const editor = new TextEditor()
-      const hasChanges = await editor.isDirty()
       const text = await editor.getText()
-
-      expect(hasChanges).to.equals(true)
       expect(text).match(
         /^<!--\n{"id":"\d*","title":"updated entry","categories":\["new category"\],"updated":".*","draft":"yes"}\n-->\n.*/
       )
@@ -88,8 +87,9 @@ describe('UI Tests', () => {
       await openFile('post.md')
       await new Workbench().executeCommand('Hatenablogger: Upload Image')
 
-      const dialog = await DialogHandler.getOpenDialog(5000)
-      await dialog.selectPath(
+      const dialog = await DialogHandler.getOpenDialog()
+      await dialogSellectPath(
+        dialog as LinuxOpenDialog,
         `${process.cwd()}/src/ui-test/fixture/screenshot.png`
       )
       await dialog.confirm()
