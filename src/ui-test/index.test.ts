@@ -8,7 +8,7 @@ import {
   TextEditor,
 } from 'vscode-extension-tester'
 import { DialogHandler } from 'vscode-extension-tester-native'
-import { LinuxOpenDialog } from 'vscode-extension-tester-native/out/openDialog'
+import { MacOpenDialog } from 'vscode-extension-tester-native/out/openDialog'
 import { expect } from 'chai'
 import { dialogSellectPath } from './utils/dialogSelectPath'
 
@@ -89,7 +89,7 @@ describe('UI Tests', () => {
 
       const dialog = await DialogHandler.getOpenDialog()
       await dialogSellectPath(
-        dialog as LinuxOpenDialog,
+        dialog as MacOpenDialog,
         `${process.cwd()}/src/ui-test/fixture/screenshot.png`
       )
       await dialog.confirm()

@@ -2,10 +2,10 @@ import * as pathj from 'path'
 import * as fs from 'fs-extra'
 import * as clipboard from 'clipboardy'
 import { Key } from '@nut-tree/nut-js'
-import { LinuxOpenDialog } from 'vscode-extension-tester-native/out/openDialog'
+import { MacOpenDialog } from 'vscode-extension-tester-native/out/openDialog'
 
 export const dialogSellectPath = async (
-  dialog: LinuxOpenDialog,
+  dialog: MacOpenDialog,
   path: string
 ): Promise<void> => {
   const absolutePath = pathj.resolve(path)
