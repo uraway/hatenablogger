@@ -7,10 +7,40 @@ import {
   NotificationType,
   TextEditor,
 } from 'vscode-extension-tester'
-import { DialogHandler } from 'vscode-extension-tester-native'
-import { MacOpenDialog } from 'vscode-extension-tester-native/out/openDialog'
+// import { DialogHandler } from 'vscode-extension-tester-native'
 import { expect } from 'chai'
-import { dialogSellectPath } from './utils/dialogSelectPath'
+import mock from 'mock-require'
+
+mock(
+  './hatenablog',
+  class Hatenablog {
+    post() {
+      return Promise.resolve({
+        entry: {
+          id: {
+            _: '_id',
+          },
+          link: [{ $: { href: '_href' } }],
+          title: { _: '_title' },
+          updated: { _: '_updated' },
+        },
+      })
+    }
+
+    update() {
+      return Promise.resolve({
+        entry: {
+          id: {
+            _: '_id',
+          },
+          link: [{ $: { href: '_href' } }],
+          title: { _: '_title' },
+          updated: { _: '_updated' },
+        },
+      })
+    }
+  }
+)
 
 // Test suite is in standard Mocha BDD format
 describe('UI Tests', () => {
@@ -83,13 +113,13 @@ describe('UI Tests', () => {
       )
     })
 
+    /**
     it('successfully uploads a image', async () => {
       await openFile('post.md')
       await new Workbench().executeCommand('Hatenablogger: Upload Image')
 
       const dialog = await DialogHandler.getOpenDialog()
-      await dialogSellectPath(
-        dialog as MacOpenDialog,
+      await dialog.selectPath(
         `${process.cwd()}/src/ui-test/fixture/screenshot.png`
       )
       await dialog.confirm()
@@ -127,6 +157,7 @@ describe('UI Tests', () => {
       expect(hasChanges).to.equals(true)
       expect(text).match(/!\[screenshot\.png]\(https:\/\/.*\)/)
     })
+    */
   })
 })
 
