@@ -9,38 +9,6 @@ import {
 } from 'vscode-extension-tester'
 // import { DialogHandler } from 'vscode-extension-tester-native'
 import { expect } from 'chai'
-import mock from 'mock-require'
-
-mock(
-  './hatenablog',
-  class Hatenablog {
-    post() {
-      return Promise.resolve({
-        entry: {
-          id: {
-            _: '_id',
-          },
-          link: [{ $: { href: '_href' } }],
-          title: { _: '_title' },
-          updated: { _: '_updated' },
-        },
-      })
-    }
-
-    update() {
-      return Promise.resolve({
-        entry: {
-          id: {
-            _: '_id',
-          },
-          link: [{ $: { href: '_href' } }],
-          title: { _: '_title' },
-          updated: { _: '_updated' },
-        },
-      })
-    }
-  }
-)
 
 // Test suite is in standard Mocha BDD format
 describe('UI Tests', () => {
@@ -56,9 +24,6 @@ describe('UI Tests', () => {
       blogId: process.env.BLOG_ID,
       apiKey: process.env.API_KEY,
     })
-
-    // wait for activation
-    await sleep(5000)
   })
 
   describe('Hatenablogger: Post or Update Command', () => {
@@ -237,10 +202,4 @@ async function inputPostEntryFieldsWithTests({
   )
   await publicationInput.setText(publicationStatus)
   await publicationInput.confirm()
-}
-
-const sleep = async (ms: number) => {
-  return await new Promise<void>((resolve) => {
-    setTimeout(() => resolve(), ms)
-  })
 }
