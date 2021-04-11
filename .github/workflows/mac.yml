@@ -30,7 +30,6 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - run: yarn install
-      - run: yarn lint
 
       - name: UI Test
         env:

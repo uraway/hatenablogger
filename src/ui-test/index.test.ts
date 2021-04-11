@@ -28,7 +28,7 @@ describe('UI Tests', () => {
 
   describe('Hatenablogger: Post or Update Command', () => {
     it('succssfully posts', async () => {
-      await openFile('post.md')
+      await openFile(driver, 'post.md')
       await new Workbench().executeCommand('Hatenablogger: Post or Update')
 
       await inputPostEntryFieldsWithTests({
@@ -46,7 +46,9 @@ describe('UI Tests', () => {
 
       const editor = new TextEditor()
       const hasChanges = await editor.isDirty()
-      const text = await editor.getText()
+      const text = await driver.wait(() => {
+        return editor.getText()
+      }, 2000)
 
       expect(hasChanges).to.equals(true)
       expect(text).match(
@@ -55,7 +57,7 @@ describe('UI Tests', () => {
     })
 
     it('successfully updates', async () => {
-      await openFile('update.md')
+      await openFile(driver, 'update.md')
       await new Workbench().executeCommand('Hatenablogger: Post or Update')
 
       await inputPostEntryFieldsWithTests({
@@ -72,7 +74,10 @@ describe('UI Tests', () => {
       expect(await notification.getType()).equals(NotificationType.Info)
 
       const editor = new TextEditor()
-      const text = await editor.getText()
+      const text = await driver.wait(() => {
+        return editor.getText()
+      }, 2000)
+
       expect(text).match(
         /^<!--\n{"id":"\d*","title":"updated entry","categories":\["new category"\],"updated":".*","draft":"yes"}\n-->\n.*/
       )
@@ -126,11 +131,13 @@ describe('UI Tests', () => {
   })
 })
 
-const openFile = async (filename: string) => {
-  await new Workbench().executeCommand('Extest: Open File')
-  const input = await InputBox.create()
-  await input.setText(`${process.cwd()}/src/ui-test/fixture/${filename}`)
-  await input.confirm()
+const openFile = async (driver: WebDriver, filename: string) => {
+  await driver.wait(async () => {
+    await new Workbench().executeCommand('Extest: Open File')
+    const input = await InputBox.create()
+    await input.setText(`${process.cwd()}/src/ui-test/fixture/${filename}`)
+    await input.confirm()
+  }, 10000)
 }
 
 const setConfiguration = async ({

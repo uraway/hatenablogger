@@ -19,18 +19,21 @@
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "onCommand:extension.postOrUpdate",
+    "onCommand:extension.uploadImage"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "extension.postOrUpdate",
-        "title": "Hatenablogger: Post or Update"
+        "title": "Post or Update",
+        "category": "Hatenablogger"
       },
       {
         "command": "extension.uploadImage",
-        "title": "Hatenablogger: Upload Image"
+        "title": "Upload Image",
+        "category": "Hatenablogger"
       }
     ],
     "configuration": {
@@ -53,7 +56,7 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "yarn compile",
+    "vscode:prepublish": "NODE_ENV=production yarn compile",
     "compile": "tsc -p ./",
     "publish": "vsce publish --yarn",
     "watch": "tsc -watch -p ./",
@@ -65,7 +68,7 @@
     "lint:type": "tsc -p ./ --noEmit",
     "lint:prettier": "prettier -c src",
     "contributors:generate": "all-contributors generate",
-    "ui-test": "yarn compile && extest setup-and-run out/ui-test/*.js -o settings.json --mocha_config src/ui-test/.mocharc-debug.js"
+    "ui-test": "yarn compile && extest setup-and-run out/ui-test/*.js -o settings.json -u --mocha_config src/ui-test/.mocharc-debug.js --install_dependencies "
   },
   "devDependencies": {
     "@nut-tree/nut-js": "^1.6.0",
