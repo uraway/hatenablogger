@@ -1,0 +1,45 @@
+name: Linux Test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: [14]
+        vscode: [latest]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+
+      - uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - run: yarn install
+      - run: yarn lint
+
+      - name: UI Test
+        env:
+          HATENA_ID: ${{ secrets.HATENA_ID }}
+          BLOG_ID: ${{ secrets.BLOG_ID }}
+          API_KEY: ${{ secrets.API_KEY }}
+          CODE_VERSION: ${{ matrix.vscode }}
+        run: |
+          sudo apt-get install xvfb
+          export DISPLAY=:99.0
+          Xvfb -ac :99 -screen 0 1920x1080x16 &
+          yarn ui-test
