@@ -8,7 +8,7 @@ import { basename } from 'path'
 
 const contextCommentRegExp = /^<!--([\s\S]*?)-->\n?/
 type Context = {
-  id?: string
+  id: string
   title: string
   categories: string[]
   draft: 'yes' | 'no'
@@ -105,9 +105,14 @@ const postOrUpdate = async () => {
   try {
     const res = await hatenablog.postOrUpdate(options)
     const id = res.entry.id._.match(/^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/)?.[1]
+
     const { hatenaId, blogId } = vscode.workspace.getConfiguration(
       'hatenablogger'
     )
+
+    if (!id) {
+      throw new Error('ID not retrieved.')
+    }
     const entryURL =
       draft !== 'yes'
         ? res.entry.link[1].$.href
@@ -124,9 +129,9 @@ const postOrUpdate = async () => {
     vscode.window.showInformationMessage(
       `Successfully ${context ? 'updated' : 'posted'} at ${entryURL}`
     )
-  } catch (err) {
+  } catch (err: unknown) {
     console.error(err)
-    vscode.window.showErrorMessage(err.toString())
+    vscode.window.showErrorMessage(String(err))
   }
 }
 
@@ -187,7 +192,7 @@ const uploadImage = async () => {
       vscode.window.showInformationMessage('Successfully image uploaded!')
     } catch (err) {
       console.error(err)
-      vscode.window.showErrorMessage(err.toString())
+      vscode.window.showErrorMessage(String(err))
     }
   }
 }

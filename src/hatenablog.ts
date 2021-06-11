@@ -1,7 +1,24 @@
 import * as vscode from 'vscode'
-import axios, { AxiosRequestConfig } from 'axios'
+import axios, { AxiosRequestConfig, Method } from 'axios'
 import * as xml2js from 'xml2js'
 import wsse from 'wsse'
+
+type UpdateOption = {
+  id: string
+  title: string
+  content: string
+  categories: string[]
+  draft: 'yes' | 'no'
+}
+
+type PostOption = {
+  title: string
+  content: string
+  categories: string[]
+  draft: 'yes' | 'no'
+}
+
+type Option = UpdateOption | PostOption
 
 type Body = {
   entry: {
@@ -56,23 +73,11 @@ export default class Hatenablog {
     this.apiKey = apiKey
   }
 
-  postOrUpdate = (options: {
-    id?: string
-    title: string
-    content: string
-    categories: string[]
-    draft: 'yes' | 'no'
-  }): Promise<Response> => {
-    return options.id ? this.update(options) : this.post(options)
+  postOrUpdate = (options: Option): Promise<Response> => {
+    return 'id' in options ? this.update(options) : this.post(options)
   }
 
-  createBody = (options: {
-    title: string
-    content: string
-    updated?: string
-    categories: string[]
-    draft: 'yes' | 'no'
-  }): Body => {
+  createBody = (options: Option): Body => {
     const { title, content, categories, draft } = options
     const body = {
       entry: {
@@ -102,26 +107,13 @@ export default class Hatenablog {
     return body
   }
 
-  post = (options: {
-    title: string
-    content: string
-    categories: string[]
-    updated?: string
-    draft: 'yes' | 'no'
-  }): Promise<Response> => {
+  post = (options: PostOption): Promise<Response> => {
     const body = this.createBody(options)
     const path = `/${this.hatenaId}/${this.blogId}/atom/entry`
     return this.request({ method: 'POST', path, body })
   }
 
-  update = (options: {
-    id?: string
-    title: string
-    content: string
-    categories: string[]
-    updated?: string
-    draft: 'yes' | 'no'
-  }): Promise<Response> => {
+  update = (options: UpdateOption): Promise<Response> => {
     const { id } = options
     const body = this.createBody(options)
     const path = `/${this.hatenaId}/${this.blogId}/atom/entry/${id}`
@@ -129,7 +121,7 @@ export default class Hatenablog {
   }
 
   request = async (options: {
-    method: AxiosRequestConfig['method']
+    method: Method
     path: string
     body: Body
   }): Promise<Response> => {
@@ -151,8 +143,8 @@ export default class Hatenablog {
         },
       })
       return this.toJson<Response>(res.data)
-    } catch (err) {
-      throw err.response.data
+    } catch (err: any) {
+      throw err?.response?.data
     }
   }
 
