@@ -7,7 +7,7 @@ import {
   NotificationType,
   TextEditor,
 } from 'vscode-extension-tester'
-// import { DialogHandler } from 'vscode-extension-tester-native'
+import { DialogHandler } from 'vscode-extension-tester-native'
 import { expect } from 'chai'
 
 // Test suite is in standard Mocha BDD format
@@ -91,8 +91,7 @@ describe('UI Tests', () => {
       )
     })
 
-    /**
-    it('successfully uploads a image', async () => {
+    it('successfully uploads an image', async () => {
       await openFile('post.md')
       await new Workbench().executeCommand('Hatenablogger: Upload Image')
 
@@ -117,7 +116,7 @@ describe('UI Tests', () => {
       )
       await titleInput.confirm()
 
-      await sleep(10000)
+      await driver.sleep(10000)
 
       const notification = (await driver.wait(() => {
         return notificationExists('Successfully image uploaded!')
@@ -135,15 +134,10 @@ describe('UI Tests', () => {
       expect(hasChanges).to.equals(true)
       expect(text).match(/!\[screenshot\.png]\(https:\/\/.*\)/)
     })
-    */
   })
 })
 
 const openFile = async (filename: string) => {
-  // await new Workbench().executeCommand('Extest: Open File')
-  // const input = await InputBox.create()
-  // await input.setText(`${process.cwd()}/src/ui-test/fixture/${filename}`)
-  // await input.confirm()
   const prompt = await new Workbench().openCommandPrompt()
   await prompt.setText(`${process.cwd()}/src/ui-test/fixture/${filename}`)
   await prompt.confirm()
