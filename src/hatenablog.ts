@@ -84,9 +84,7 @@ export default class Hatenablog {
   private apiKey: string
 
   constructor() {
-    const { hatenaId, blogId, apiKey } = vscode.workspace.getConfiguration(
-      'hatenablogger'
-    )
+    const { hatenaId, blogId, apiKey } = vscode.workspace.getConfiguration('hatenablogger')
     this.hatenaId = hatenaId
     this.blogId = blogId
     this.apiKey = apiKey
@@ -144,11 +142,7 @@ export default class Hatenablog {
     return this.request({ method: 'PUT', path, body })
   }
 
-  private request = async (options: {
-    method: Method
-    path: string
-    body?: Body
-  }): Promise<Response> => {
+  private request = async (options: { method: Method; path: string; body?: Body }): Promise<Response> => {
     const { method, path, body } = options
     const token = wsse({
       username: this.hatenaId,

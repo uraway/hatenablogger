@@ -25,17 +25,11 @@ export function activate(context: vscode.ExtensionContext): void {
   // Now provide the implementation of the command with  registerCommand
   // The commandId parameter must match the command field in package.json
   const disposables = []
-  disposables.push(
-    vscode.commands.registerCommand('extension.postOrUpdate', postOrUpdate)
-  )
+  disposables.push(vscode.commands.registerCommand('extension.postOrUpdate', postOrUpdate))
 
-  disposables.push(
-    vscode.commands.registerCommand('extension.uploadImage', uploadImage)
-  )
+  disposables.push(vscode.commands.registerCommand('extension.uploadImage', uploadImage))
 
-  disposables.push(
-    vscode.commands.registerCommand('extension.retrieveEntry', retrieveEntry)
-  )
+  disposables.push(vscode.commands.registerCommand('extension.retrieveEntry', retrieveEntry))
   console.log(disposables)
   context.subscriptions.concat(disposables)
 }
@@ -76,9 +70,7 @@ const retrieveEntry = async () => {
       content
     )
 
-    vscode.window.showInformationMessage(
-      `Successfully retrieved Entry content (ID: ${id})`
-    )
+    vscode.window.showInformationMessage(`Successfully retrieved Entry content (ID: ${id})`)
   } catch (err) {
     console.error(err)
     vscode.window.showErrorMessage(String(err))
@@ -151,17 +143,13 @@ const postOrUpdate = async () => {
     const res = await hatenablog.postOrUpdate(options)
     const id = res.entry.id._.match(/^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/)?.[1]
 
-    const { hatenaId, blogId } = vscode.workspace.getConfiguration(
-      'hatenablogger'
-    )
+    const { hatenaId, blogId } = vscode.workspace.getConfiguration('hatenablogger')
 
     if (!id) {
       throw new Error('ID not retrieved.')
     }
     const entryURL =
-      draft !== 'yes'
-        ? res.entry.link[1].$.href
-        : `http://blog.hatena.ne.jp/${hatenaId}/${blogId}/edit?entry=${id}`
+      draft !== 'yes' ? res.entry.link[1].$.href : `http://blog.hatena.ne.jp/${hatenaId}/${blogId}/edit?entry=${id}`
 
     saveContext({
       id,
@@ -171,9 +159,7 @@ const postOrUpdate = async () => {
       draft,
     })
 
-    vscode.window.showInformationMessage(
-      `Successfully ${context ? 'updated' : 'posted'} at ${entryURL}`
-    )
+    vscode.window.showInformationMessage(`Successfully ${context ? 'updated' : 'posted'} at ${entryURL}`)
   } catch (err: unknown) {
     console.error(err)
     vscode.window.showErrorMessage(String(err))
@@ -185,15 +171,12 @@ function saveContext(context: Context, content?: string) {
   if (!textEditor) {
     return
   }
-  const fileContent =
-    content ?? removeContextComment(textEditor.document.getText())
+  const fileContent = content ?? removeContextComment(textEditor.document.getText())
   const comment = `<!--\n${JSON.stringify(context)}\n-->\n\n${fileContent}`
 
   const firstPosition = new vscode.Position(0, 0)
   const lastPosition = new vscode.Position(textEditor.document.lineCount, 0)
-  textEditor.edit((edit) =>
-    edit.replace(new vscode.Range(firstPosition, lastPosition), comment)
-  )
+  textEditor.edit((edit) => edit.replace(new vscode.Range(firstPosition, lastPosition), comment))
 }
 
 function parseContext(content: string): null | Context {
