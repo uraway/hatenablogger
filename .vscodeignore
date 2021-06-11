@@ -1,1 +1,3 @@
 test-resources/**
+src/test/
+src/ui-test/

@@ -7,10 +7,8 @@ import {
   NotificationType,
   TextEditor,
 } from 'vscode-extension-tester'
-import { DialogHandler } from 'vscode-extension-tester-native'
-import { LinuxOpenDialog } from 'vscode-extension-tester-native/out/openDialog'
+// import { DialogHandler } from 'vscode-extension-tester-native'
 import { expect } from 'chai'
-import { dialogSellectPath } from './utils/dialogSelectPath'
 
 // Test suite is in standard Mocha BDD format
 describe('UI Tests', () => {
@@ -21,14 +19,16 @@ describe('UI Tests', () => {
     // we can use all its functionality along with the tester API
     driver = VSBrowser.instance.driver
 
-    await setConfiguration({
-      hatenaId: process.env.HATENA_ID,
-      blogId: process.env.BLOG_ID,
-      apiKey: process.env.API_KEY,
-    })
+    const { HATENA_ID, BLOG_ID, API_KEY } = process.env
+    if (!HATENA_ID || !BLOG_ID || !API_KEY) {
+      throw new Error('env not set')
+    }
 
-    // wait for activation
-    await sleep(5000)
+    await setConfiguration({
+      hatenaId: HATENA_ID,
+      blogId: BLOG_ID,
+      apiKey: API_KEY,
+    })
   })
 
   describe('Hatenablogger: Post or Update Command', () => {
@@ -43,17 +43,21 @@ describe('UI Tests', () => {
       })
 
       const notification = (await driver.wait(() => {
-        return notificationExists('Successfully')
+        return notificationExists('Successfully posted')
       }, 2000)) as Notification
 
-      expect(await notification.getMessage()).match(/Successfully posted at/)
+      const message = await notification.getMessage()
+      console.log(message)
+      expect(message).match(/Successfully posted at/)
       expect(await notification.getType()).equals(NotificationType.Info)
-
       const editor = new TextEditor()
       const hasChanges = await editor.isDirty()
-      const text = await editor.getText()
+      const text = await driver.wait(() => {
+        return editor.getText()
+      }, 2000)
 
       expect(hasChanges).to.equals(true)
+      console.log(text)
       expect(text).match(
         /^<!--\n{"id":"\d*","title":"new entry","categories":\["category1","カテゴリー2"\],"updated":".*","draft":"yes"}\n-->\n/
       )
@@ -70,26 +74,30 @@ describe('UI Tests', () => {
       })
 
       const notification = (await driver.wait(() => {
-        return notificationExists('Successfully')
+        return notificationExists('Successfully updated')
       }, 2000)) as Notification
 
-      expect(await notification.getMessage()).match(/Successfully posted at/)
+      const message = await notification.getMessage()
+      console.log(message)
+      expect(message).match(/Successfully updated at/)
       expect(await notification.getType()).equals(NotificationType.Info)
-
       const editor = new TextEditor()
-      const text = await editor.getText()
+      const text = await driver.wait(() => {
+        return editor.getText()
+      }, 2000)
+      console.log(text)
       expect(text).match(
         /^<!--\n{"id":"\d*","title":"updated entry","categories":\["new category"\],"updated":".*","draft":"yes"}\n-->\n.*/
       )
     })
 
+    /**
     it('successfully uploads a image', async () => {
       await openFile('post.md')
       await new Workbench().executeCommand('Hatenablogger: Upload Image')
 
       const dialog = await DialogHandler.getOpenDialog()
-      await dialogSellectPath(
-        dialog as LinuxOpenDialog,
+      await dialog.selectPath(
         `${process.cwd()}/src/ui-test/fixture/screenshot.png`
       )
       await dialog.confirm()
@@ -127,14 +135,18 @@ describe('UI Tests', () => {
       expect(hasChanges).to.equals(true)
       expect(text).match(/!\[screenshot\.png]\(https:\/\/.*\)/)
     })
+    */
   })
 })
 
 const openFile = async (filename: string) => {
-  await new Workbench().executeCommand('Extest: Open File')
-  const input = await InputBox.create()
-  await input.setText(`${process.cwd()}/src/ui-test/fixture/${filename}`)
-  await input.confirm()
+  // await new Workbench().executeCommand('Extest: Open File')
+  // const input = await InputBox.create()
+  // await input.setText(`${process.cwd()}/src/ui-test/fixture/${filename}`)
+  // await input.confirm()
+  const prompt = await new Workbench().openCommandPrompt()
+  await prompt.setText(`${process.cwd()}/src/ui-test/fixture/${filename}`)
+  await prompt.confirm()
 }
 
 const setConfiguration = async ({
@@ -206,10 +218,4 @@ async function inputPostEntryFieldsWithTests({
   )
   await publicationInput.setText(publicationStatus)
   await publicationInput.confirm()
-}
-
-const sleep = async (ms: number) => {
-  return await new Promise<void>((resolve) => {
-    setTimeout(() => resolve(), ms)
-  })
 }
