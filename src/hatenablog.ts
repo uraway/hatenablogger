@@ -96,7 +96,7 @@ export default class Hatenablog {
     return 'id' in options ? this.update(options) : this.post(options)
   }
 
-  getEntry = (id: string) => {
+  getEntry = (id: string): Promise<Response> => {
     const path = `/${this.hatenaId}/${this.blogId}/atom/entry/${id}`
     return this.request({ method: 'GET', path })
   }
@@ -166,8 +166,12 @@ export default class Hatenablog {
         },
       })
       return this.toJson<Response>(res.data)
-    } catch (err: any) {
-      throw err?.response?.data
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        throw err?.response?.data
+      } else {
+        throw err
+      }
     }
   }
 
