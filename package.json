@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/uraway/hatenablogger/issues"
   },
-  "version": "0.4.3",
+  "version": "0.4.7",
   "engines": {
     "vscode": "^1.54.0"
   },
@@ -30,7 +30,7 @@
     "onCommand:extension.uploadImage",
     "onCommand:extension.retrieveEntry"
   ],
-  "main": "./out/extension.js",
+  "main": "./out/main.js",
   "contributes": {
     "commands": [
       {
@@ -69,10 +69,12 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "cross-env NODE_ENV=production yarn compile",
+    "vscode:prepublish": "rm -rf out && npm run -S esbuild-base -- --minify",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
+    "esbuild": "npm run -S esbuild-base -- --sourcemap",
+    "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
     "compile": "tsc -p ./",
     "publish": "vsce publish --yarn",
-    "watch": "tsc -watch -p ./",
     "pretest": "yarn compile",
     "test": "node ./out/test/runTest.js",
     "contributors:add": "all-contributors add",
@@ -100,6 +102,7 @@
     "chai": "4.3.4",
     "clipboardy": "2.3.0",
     "cross-env": "7.0.3",
+    "esbuild": "^0.12.8",
     "eslint": "7.18.0",
     "fs-extra": "9.1.0",
     "glob": "7.1.6",
