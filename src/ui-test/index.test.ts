@@ -19,16 +19,21 @@ describe('UI Tests', () => {
     // we can use all its functionality along with the tester API
     driver = VSBrowser.instance.driver
 
+    const { HATENA_ID, BLOG_ID, API_KEY } = process.env
+    if (!HATENA_ID || !BLOG_ID || !API_KEY) {
+      throw new Error('env not set')
+    }
+
     await setConfiguration({
-      hatenaId: process.env.HATENA_ID,
-      blogId: process.env.BLOG_ID,
-      apiKey: process.env.API_KEY,
+      hatenaId: HATENA_ID,
+      blogId: BLOG_ID,
+      apiKey: API_KEY,
     })
   })
 
   describe('Hatenablogger: Post or Update Command', () => {
     it('succssfully posts', async () => {
-      await openFile(driver, 'post.md')
+      await openFile('post.md')
       await new Workbench().executeCommand('Hatenablogger: Post or Update')
 
       await inputPostEntryFieldsWithTests({
@@ -38,12 +43,13 @@ describe('UI Tests', () => {
       })
 
       const notification = (await driver.wait(() => {
-        return notificationExists('Successfully')
+        return notificationExists('Successfully posted')
       }, 2000)) as Notification
 
-      expect(await notification.getMessage()).match(/Successfully posted at/)
+      const message = await notification.getMessage()
+      console.log(message)
+      expect(message).match(/Successfully posted at/)
       expect(await notification.getType()).equals(NotificationType.Info)
-
       const editor = new TextEditor()
       const hasChanges = await editor.isDirty()
       const text = await driver.wait(() => {
@@ -51,13 +57,14 @@ describe('UI Tests', () => {
       }, 2000)
 
       expect(hasChanges).to.equals(true)
+      console.log(text)
       expect(text).match(
         /^<!--\n{"id":"\d*","title":"new entry","categories":\["category1","カテゴリー2"\],"updated":".*","draft":"yes"}\n-->\n/
       )
     })
 
     it('successfully updates', async () => {
-      await openFile(driver, 'update.md')
+      await openFile('update.md')
       await new Workbench().executeCommand('Hatenablogger: Post or Update')
 
       await inputPostEntryFieldsWithTests({
@@ -67,17 +74,18 @@ describe('UI Tests', () => {
       })
 
       const notification = (await driver.wait(() => {
-        return notificationExists('Successfully')
+        return notificationExists('Successfully updated')
       }, 2000)) as Notification
 
-      expect(await notification.getMessage()).match(/Successfully posted at/)
+      const message = await notification.getMessage()
+      console.log(message)
+      expect(message).match(/Successfully updated at/)
       expect(await notification.getType()).equals(NotificationType.Info)
-
       const editor = new TextEditor()
       const text = await driver.wait(() => {
         return editor.getText()
       }, 2000)
-
+      console.log(text)
       expect(text).match(
         /^<!--\n{"id":"\d*","title":"updated entry","categories":\["new category"\],"updated":".*","draft":"yes"}\n-->\n.*/
       )
@@ -131,13 +139,14 @@ describe('UI Tests', () => {
   })
 })
 
-const openFile = async (driver: WebDriver, filename: string) => {
-  await driver.wait(async () => {
-    await new Workbench().executeCommand('Extest: Open File')
-    const input = await InputBox.create()
-    await input.setText(`${process.cwd()}/src/ui-test/fixture/${filename}`)
-    await input.confirm()
-  }, 10000)
+const openFile = async (filename: string) => {
+  // await new Workbench().executeCommand('Extest: Open File')
+  // const input = await InputBox.create()
+  // await input.setText(`${process.cwd()}/src/ui-test/fixture/${filename}`)
+  // await input.confirm()
+  const prompt = await new Workbench().openCommandPrompt()
+  await prompt.setText(`${process.cwd()}/src/ui-test/fixture/${filename}`)
+  await prompt.confirm()
 }
 
 const setConfiguration = async ({
