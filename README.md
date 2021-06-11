@@ -4,31 +4,46 @@
 
 This VSCode extension helps you to manage entries on HatenaBlog and images on HatenaFotolife.
 
-[日本語の解説エントリはこちら](http://uraway.hatenablog.com/entry/2018/12/12/001545)
+はてなブログエントリーを VSCode から投稿・更新するための VSCode 拡張です。はてなフォトライフへ画像をアップロードすることもできます。
 
-## Features
+## オプション設定
 
-### Post an entry
+| プロパティ | 型     | 必須 | 説明                                                                              |
+| ---------- | ------ | ---- | --------------------------------------------------------------------------------- |
+| hatenaId   | 文字列 | ○    | Hatena ID                                                                         |
+| blogId     | 文字列 | ○    | [Blog ID](http://blog.hatena.ne.jp/my/config/detail) (デフォルトはブログドメイン) |
+| apiKey     | 文字列 | ○    | [API キー](http://blog.hatena.ne.jp/my/config/detail)                             |
 
-Post an entry and create a context: `Hatenablogger: Post or Update`
+![](./images/api-key.png)
+
+| プロパティ       | 型     | 必須 | 説明                                                         |
+| ---------------- | ------ | ---- | ------------------------------------------------------------ |
+| fotolifeFolder   | 文字列 |      | 画像をアップロードするフォルダを指定します                   |
+| alwaysAskCaption | 真偽値 |      | 画像をアップロードする際に、キャプションを追加するか尋ねます |
+
+## 機能
+
+### エントリの投稿: `Hatenablogger: Post or Update`
+
+マークダウンファイル内にコンテキストコメントがない場合は、エントリを投稿し、コンテキストコメントを挿入します
 
 ![post-entry](./images/post-entry.gif)
 
-### Update an entry
+### エントリの更新: `Hatenablogger: Post or Update`
 
-If a context exists, try to update the entry: `Hatenablogger: Post or Update`
+マークダウンファイル内にコンテキストコメントが存在する場合は、エントリとコンテキストコメントを更新します
 
 ![update-entry](./images/update-entry.gif)
 
-### Retrieve an entry
+### エントリの取得: `Hatenablogger: Retrieve Entry`
 
-If id exists in context, try to retrieve the entry and update context and file content: `Hatenablogger: Retrieve Entry`
+マークダウンファイル内にコンテキストコメントが存在する場合は、エントリを取得し、マークダウンファイルとコンテキストコメントを同期します
 
 ![retrieve-entry](./images/retrieve-entry.gif)
 
-### Upload Image
+### イメージのアップロード: `Hatenablogger: Upload Image`
 
-Upload image to fotolife and insert image url: `Hatenablogger: Upload Image`
+はてなフォトライフへ画像をアップロードし、マークダウン形式で画像 URL を挿入します
 
 ![upload-image](./images/upload-image.gif)
 
