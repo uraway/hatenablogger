@@ -11,12 +11,19 @@
   "bugs": {
     "url": "https://github.com/uraway/hatenablogger/issues"
   },
-  "version": "0.4.2",
+  "version": "0.4.3",
   "engines": {
     "vscode": "^1.54.0"
   },
   "categories": [
     "Other"
+  ],
+  "icon": "images/icon.png",
+  "keywords": [
+    "Hatena Blog",
+    "はてなブログ",
+    "Hatena Fotolife",
+    "はてなフォトライフ"
   ],
   "activationEvents": [
     "onCommand:extension.postOrUpdate",
