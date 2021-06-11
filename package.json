@@ -98,7 +98,7 @@
     "@types/xml2js": "0.4.8",
     "@typescript-eslint/eslint-plugin": "4.26.1",
     "@typescript-eslint/parser": "4.26.1",
-    "all-contributors-cli": "6.19.0",
+    "all-contributors-cli": "6.20.0",
     "chai": "4.3.4",
     "clipboardy": "2.3.0",
     "cross-env": "7.0.3",
