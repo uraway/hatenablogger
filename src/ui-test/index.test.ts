@@ -91,6 +91,26 @@ describe('UI Tests', () => {
       )
     })
 
+    it('successfully retrieves entry', async () => {
+      await openFile('retrieve.md')
+      await new Workbench().executeCommand('Hatenablogger: Retrieve Entry')
+
+      const notification = (await driver.wait(() => {
+        return notificationExists('Successfully retrieved')
+      }, 2000)) as Notification
+      const message = await notification.getMessage()
+      console.log(message)
+      expect(message).match(/Successfully retrieved Entry content/)
+      expect(await notification.getType()).equals(NotificationType.Info)
+      const editor = new TextEditor()
+      const text = await driver.wait(() => {
+        return editor.getText()
+      }, 2000)
+      expect(text).match(
+        /^<!--\n{"id":"26006613702211539","title":"retrieved entry title","categories":\["category1", "カテゴリー2"\],"updated":".*","draft":"yes"}\n-->\n\nretrieved entry body/
+      )
+    })
+
     //it('successfully uploads an image', async () => {
     //  await openFile('post.md')
     //  await new Workbench().executeCommand('Hatenablogger: Upload Image')
@@ -179,10 +199,6 @@ async function notificationExists(
     if (message.indexOf(text) >= 0) {
       result = notification
     }
-  }
-
-  if (!result) {
-    console.log(`Notification contains ${text} Not Found`)
   }
   return result
 }

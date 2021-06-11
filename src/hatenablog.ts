@@ -56,6 +56,25 @@ type Response = {
     link: Array<{ $: { href: string } }>
     title: { _: string }
     updated: { _: string }
+    category:
+      | {
+          $: {
+            term: string
+          }
+        }
+      | {
+          $: {
+            term: string
+          }
+        }[]
+    'app:control': {
+      'app:draft': {
+        _: 'yes' | 'no'
+      }
+    }
+    content: {
+      _: string
+    }
   }
 }
 
@@ -77,7 +96,12 @@ export default class Hatenablog {
     return 'id' in options ? this.update(options) : this.post(options)
   }
 
-  createBody = (options: Option): Body => {
+  getEntry = (id: string) => {
+    const path = `/${this.hatenaId}/${this.blogId}/atom/entry/${id}`
+    return this.request({ method: 'GET', path })
+  }
+
+  private createBody = (options: Option): Body => {
     const { title, content, categories, draft } = options
     const body = {
       entry: {
@@ -107,35 +131,34 @@ export default class Hatenablog {
     return body
   }
 
-  post = (options: PostOption): Promise<Response> => {
+  private post = (options: PostOption): Promise<Response> => {
     const body = this.createBody(options)
     const path = `/${this.hatenaId}/${this.blogId}/atom/entry`
     return this.request({ method: 'POST', path, body })
   }
 
-  update = (options: UpdateOption): Promise<Response> => {
+  private update = (options: UpdateOption): Promise<Response> => {
     const { id } = options
     const body = this.createBody(options)
     const path = `/${this.hatenaId}/${this.blogId}/atom/entry/${id}`
     return this.request({ method: 'PUT', path, body })
   }
 
-  request = async (options: {
+  private request = async (options: {
     method: Method
     path: string
-    body: Body
+    body?: Body
   }): Promise<Response> => {
     const { method, path, body } = options
     const token = wsse({
       username: this.hatenaId,
       password: this.apiKey,
     })
-    const xml = await this.toXml(body)
     try {
       const res = await axios({
         method,
         url: `https://blog.hatena.ne.jp${path}`,
-        data: xml,
+        data: body && (await this.toXml(body)),
         headers: {
           'Content-Type': 'text/xml',
           Authorization: 'WSSE profile="UsernameToken',
@@ -148,7 +171,7 @@ export default class Hatenablog {
     }
   }
 
-  toJson = <T>(xml: string): Promise<T> => {
+  private toJson = <T>(xml: string): Promise<T> => {
     return new Promise((resolve, reject) => {
       const parser = new xml2js.Parser({
         explicitArray: false,
@@ -164,7 +187,7 @@ export default class Hatenablog {
     })
   }
 
-  toXml = (json: Record<string, unknown>): Promise<unknown> => {
+  private toXml = (json: Record<string, unknown>): Promise<unknown> => {
     const builder = new xml2js.Builder()
     return new Promise((resolve, reject) => {
       try {
@@ -176,7 +199,7 @@ export default class Hatenablog {
     })
   }
 
-  sanitize = (text: string): string => {
+  private sanitize = (text: string): string => {
     // Remove invalid control characters
     return text.replace(/\u08/g, '')
   }

@@ -20,7 +20,8 @@
   ],
   "activationEvents": [
     "onCommand:extension.postOrUpdate",
-    "onCommand:extension.uploadImage"
+    "onCommand:extension.uploadImage",
+    "onCommand:extension.retrieveEntry"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -33,6 +34,11 @@
       {
         "command": "extension.uploadImage",
         "title": "Upload Image",
+        "category": "Hatenablogger"
+      },
+      {
+        "command": "extension.retrieveEntry",
+        "title": "Retrieve Entry",
         "category": "Hatenablogger"
       }
     ],
