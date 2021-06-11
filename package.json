@@ -74,7 +74,7 @@
     "esbuild": "npm run -S esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
     "compile": "tsc -p ./",
-    "publish": "vsce publish --yarn",
+    "publish": "npx vsce publish --yarn",
     "pretest": "yarn compile",
     "test": "node ./out/test/runTest.js",
     "contributors:add": "all-contributors add",
