@@ -13,9 +13,7 @@ export default class Hatenafotolife {
   private client: Fotolife
 
   constructor() {
-    const { hatenaId, apiKey } = vscode.workspace.getConfiguration(
-      'hatenablogger'
-    )
+    const { hatenaId, apiKey } = vscode.workspace.getConfiguration('hatenablogger')
     this.client = fotolife({
       type: 'wsse',
       username: hatenaId,
@@ -24,9 +22,7 @@ export default class Hatenafotolife {
   }
 
   upload = (options: { file: string; title: string }): Promise<Response> => {
-    const { fotolifeFolder } = vscode.workspace.getConfiguration(
-      'hatenablogger'
-    )
+    const { fotolifeFolder } = vscode.workspace.getConfiguration('hatenablogger')
     return this.client.create({
       ...options,
       folder: fotolifeFolder,

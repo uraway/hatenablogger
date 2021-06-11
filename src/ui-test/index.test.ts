@@ -174,23 +174,12 @@ const setConfiguration = async ({
 }) => {
   const settingsEditor = await new Workbench().openSettings()
 
-  hatenaId &&
-    (await (
-      await settingsEditor.findSetting('Hatena ID', 'Hatenablogger')
-    ).setValue(hatenaId))
-  blogId &&
-    (await (
-      await settingsEditor.findSetting('Blog ID', 'Hatenablogger')
-    ).setValue(blogId))
-  apiKey &&
-    (await (
-      await settingsEditor.findSetting('Api Key', 'Hatenablogger')
-    ).setValue(apiKey))
+  hatenaId && (await (await settingsEditor.findSetting('Hatena ID', 'Hatenablogger')).setValue(hatenaId))
+  blogId && (await (await settingsEditor.findSetting('Blog ID', 'Hatenablogger')).setValue(blogId))
+  apiKey && (await (await settingsEditor.findSetting('Api Key', 'Hatenablogger')).setValue(apiKey))
 }
 
-async function notificationExists(
-  text: string
-): Promise<Notification | undefined> {
+async function notificationExists(text: string): Promise<Notification | undefined> {
   const notifications = await new Workbench().getNotifications()
 
   let result
