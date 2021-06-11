@@ -18,6 +18,8 @@ jobs:
           key: v1-node-cache-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
+      - run: yarn lint
+      - run: node ./scripts/use-dummy.js
       - run: sudo apt update && sudo apt install libxss1 xvfb
       - run: |
           export DISPLAY=':99.0'

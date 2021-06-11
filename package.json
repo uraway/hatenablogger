@@ -11,19 +11,26 @@
   "bugs": {
     "url": "https://github.com/uraway/hatenablogger/issues"
   },
-  "version": "0.4.2",
+  "version": "0.4.7",
   "engines": {
     "vscode": "^1.54.0"
   },
   "categories": [
     "Other"
   ],
+  "icon": "images/icon.png",
+  "keywords": [
+    "Hatena Blog",
+    "はてなブログ",
+    "Hatena Fotolife",
+    "はてなフォトライフ"
+  ],
   "activationEvents": [
     "onCommand:extension.postOrUpdate",
     "onCommand:extension.uploadImage",
     "onCommand:extension.retrieveEntry"
   ],
-  "main": "./out/extension.js",
+  "main": "./out/main.js",
   "contributes": {
     "commands": [
       {
@@ -62,15 +69,17 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "cross-env NODE_ENV=production yarn compile",
+    "vscode:prepublish": "npm run -S esbuild-base -- --minify",
+    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node",
+    "esbuild": "npm run -S esbuild-base -- --sourcemap",
+    "esbuild-watch": "npm run -S esbuild-base -- --sourcemap --watch",
     "compile": "tsc -p ./",
-    "publish": "vsce publish --yarn",
-    "watch": "tsc -watch -p ./",
+    "publish": "npx vsce publish --yarn",
     "pretest": "yarn compile",
     "test": "node ./out/test/runTest.js",
     "contributors:add": "all-contributors add",
     "lint": "npm-run-all -p lint:*",
-    "lint:eslint": "eslint . --ext .ts,.tsx",
+    "lint:eslint": "eslint src --ext .ts,.tsx",
     "lint:type": "tsc -p ./ --noEmit",
     "lint:prettier": "prettier -c src",
     "contributors:generate": "all-contributors generate",
@@ -87,12 +96,13 @@
     "@types/sinon": "10.0.2",
     "@types/vscode": "1.54.0",
     "@types/xml2js": "0.4.8",
-    "@typescript-eslint/eslint-plugin": "4.14.0",
-    "@typescript-eslint/parser": "4.14.0",
+    "@typescript-eslint/eslint-plugin": "4.26.1",
+    "@typescript-eslint/parser": "4.26.1",
     "all-contributors-cli": "6.19.0",
     "chai": "4.3.4",
     "clipboardy": "2.3.0",
     "cross-env": "7.0.3",
+    "esbuild": "^0.12.8",
     "eslint": "7.18.0",
     "fs-extra": "9.1.0",
     "glob": "7.1.6",
@@ -108,6 +118,6 @@
     "axios": "0.21.1",
     "hatena-fotolife-api": "2.0.0",
     "wsse": "5.1.0",
-    "xml2js": "^0.4.19"
+    "xml2js": "0.4.19"
   }
 }

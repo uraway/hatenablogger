@@ -1,5 +1,7 @@
 # hatenablogger
 
+[![<uraway>](https://circleci.com/gh/uraway/hatenablogger.svg?style=svg)](https://circleci.com/gh/uraway/hatenablogger)
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
 
 This VSCode extension helps you to manage entries on HatenaBlog and images on HatenaFotolife.
@@ -46,14 +48,6 @@ This VSCode extension helps you to manage entries on HatenaBlog and images on Ha
 はてなフォトライフへ画像をアップロードし、マークダウン形式で画像 URL を挿入します
 
 ![upload-image](./images/upload-image.gif)
-
-## Extension Settings
-
-- `hatenablogger.hatenaId`: your Hatena ID
-- `hatenablogger.blogId`: [your Blog ID](http://blog.hatena.ne.jp/my/config/detail) (Your Blog Domain)
-- `hatenablogger.apiKey`: [your API Key](http://blog.hatena.ne.jp/my/config/detail)
-
-![](./images/api-key.png)
 
 ## Contributing
 

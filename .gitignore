@@ -6,3 +6,4 @@ dist
 test-resources/
 .envrc
 logs/
+images/icon.png
