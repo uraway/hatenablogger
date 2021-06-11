@@ -91,59 +91,73 @@ describe('UI Tests', () => {
       )
     })
 
-    /**
-    it('successfully uploads a image', async () => {
-      await openFile('post.md')
-      await new Workbench().executeCommand('Hatenablogger: Upload Image')
-
-      const dialog = await DialogHandler.getOpenDialog()
-      await dialog.selectPath(
-        `${process.cwd()}/src/ui-test/fixture/screenshot.png`
-      )
-      await dialog.confirm()
-
-      const loadingNotification = (await driver.wait(() => {
-        return notificationExists('Uploading image...')
-      }, 2000)) as Notification
-
-      expect(await loadingNotification.getMessage()).to.be('Uploading image...')
-      expect(await loadingNotification.getType()).equals(NotificationType.Info)
-
-      const titleInput = await InputBox.create()
-      expect(await titleInput.getPlaceHolder()).to.be('Title')
-      expect(await titleInput.getText()).to.be('screenshot.png')
-      expect(await titleInput.getMessage()).to.be(
-        "Please input title (Press 'Enter' to confirm or 'Escape' to cancel)"
-      )
-      await titleInput.confirm()
-
-      await sleep(10000)
+    it('successfully retrieves entry', async () => {
+      await openFile('retrieve.md')
+      await new Workbench().executeCommand('Hatenablogger: Retrieve Entry')
 
       const notification = (await driver.wait(() => {
-        return notificationExists('Successfully image uploaded!')
+        return notificationExists('Successfully retrieved')
       }, 2000)) as Notification
-
-      expect(await notification.getMessage()).to.be(
-        'Successfully image uploaded!'
-      )
+      const message = await notification.getMessage()
+      console.log(message)
+      expect(message).match(/Successfully retrieved Entry content/)
       expect(await notification.getType()).equals(NotificationType.Info)
-
       const editor = new TextEditor()
-      const hasChanges = await editor.isDirty()
-      const text = await editor.getText()
-
-      expect(hasChanges).to.equals(true)
-      expect(text).match(/!\[screenshot\.png]\(https:\/\/.*\)/)
+      const text = await driver.wait(() => {
+        return editor.getText()
+      }, 2000)
+      expect(text).match(
+        /^<!--\n{"id":"26006613774708000","title":"retrieved entry title","categories":\["category1","カテゴリー2"\],"updated":".*","draft":"yes"}\n-->\n\nretrieved entry body/
+      )
     })
-    */
+
+    //it('successfully uploads an image', async () => {
+    //  await openFile('post.md')
+    //  await new Workbench().executeCommand('Hatenablogger: Upload Image')
+    //
+    //  const dialog = await DialogHandler.getOpenDialog()
+    //  await dialog.selectPath(
+    //    `${process.cwd()}/src/ui-test/fixture/screenshot.png`
+    //  )
+    //  await dialog.confirm()
+    //
+    //  const loadingNotification = (await driver.wait(() => {
+    //    return notificationExists('Uploading image...')
+    //  }, 2000)) as Notification
+    //
+    //  expect(await loadingNotification.getMessage()).to.be('Uploading image...')
+    //  expect(await loadingNotification.getType()).equals(NotificationType.Info)
+    //
+    //  const titleInput = await InputBox.create()
+    //  expect(await titleInput.getPlaceHolder()).to.be('Title')
+    //  expect(await titleInput.getText()).to.be('screenshot.png')
+    //  expect(await titleInput.getMessage()).to.be(
+    //    "Please input title (Press 'Enter' to confirm or 'Escape' to cancel)"
+    //  )
+    //  await titleInput.confirm()
+    //
+    //  await driver.sleep(10000)
+    //
+    //  const notification = (await driver.wait(() => {
+    //    return notificationExists('Successfully image uploaded!')
+    //  }, 2000)) as Notification
+    //
+    //  expect(await notification.getMessage()).to.be(
+    //    'Successfully image uploaded!'
+    //  )
+    //  expect(await notification.getType()).equals(NotificationType.Info)
+    //
+    //  const editor = new TextEditor()
+    //  const hasChanges = await editor.isDirty()
+    //  const text = await editor.getText()
+    //
+    //  expect(hasChanges).to.equals(true)
+    //  expect(text).match(/!\[screenshot\.png]\(https:\/\/.*\)/)
+    //})
   })
 })
 
 const openFile = async (filename: string) => {
-  // await new Workbench().executeCommand('Extest: Open File')
-  // const input = await InputBox.create()
-  // await input.setText(`${process.cwd()}/src/ui-test/fixture/${filename}`)
-  // await input.confirm()
   const prompt = await new Workbench().openCommandPrompt()
   await prompt.setText(`${process.cwd()}/src/ui-test/fixture/${filename}`)
   await prompt.confirm()
@@ -178,12 +192,15 @@ async function notificationExists(
   text: string
 ): Promise<Notification | undefined> {
   const notifications = await new Workbench().getNotifications()
+
+  let result
   for (const notification of notifications) {
     const message = await notification.getMessage()
     if (message.indexOf(text) >= 0) {
-      return notification
+      result = notification
     }
   }
+  return result
 }
 
 async function inputPostEntryFieldsWithTests({

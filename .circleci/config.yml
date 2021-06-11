@@ -31,7 +31,7 @@ workflows:
       - vsce/publish:
           publish-token-variable: VSCODE_MARKETPLACE_TOKEN
           push-git-tag: true
-          ssh-fingerprints: 69:b1:99:a9:aa:ba:93:a0:e2:1f:62:a4:c2:63:c2:c5
+          ssh-fingerprints: ef:72:f6:8f:46:fd:07:41:70:d7:a4:98:63:05:fa:89
           prefer-yarn: true
           pre-install-steps:
             - restore_cache:

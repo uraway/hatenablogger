@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/uraway/hatenablogger/issues"
   },
-  "version": "0.3.4",
+  "version": "0.4.0",
   "engines": {
     "vscode": "^1.54.0"
   },
@@ -20,7 +20,8 @@
   ],
   "activationEvents": [
     "onCommand:extension.postOrUpdate",
-    "onCommand:extension.uploadImage"
+    "onCommand:extension.uploadImage",
+    "onCommand:extension.retrieveEntry"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -33,6 +34,11 @@
       {
         "command": "extension.uploadImage",
         "title": "Upload Image",
+        "category": "Hatenablogger"
+      },
+      {
+        "command": "extension.retrieveEntry",
+        "title": "Retrieve Entry",
         "category": "Hatenablogger"
       }
     ],
@@ -93,7 +99,7 @@
     "mocha": "8.3.1",
     "npm-run-all": "4.1.5",
     "prettier": "2.2.1",
-    "typescript": "4.1.3",
+    "typescript": "4.3.2",
     "vscode-extension-tester": "4.0.3",
     "vscode-extension-tester-native": "3.0.2",
     "vscode-test": "1.4.1"

@@ -8,7 +8,7 @@ import { basename } from 'path'
 
 const contextCommentRegExp = /^<!--([\s\S]*?)-->\n?/
 type Context = {
-  id?: string
+  id: string
   title: string
   categories: string[]
   draft: 'yes' | 'no'
@@ -33,12 +33,57 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('extension.uploadImage', uploadImage)
   )
 
+  disposables.push(
+    vscode.commands.registerCommand('extension.retrieveEntry', retrieveEntry)
+  )
+  console.log(disposables)
   context.subscriptions.concat(disposables)
 }
 
 // this method is called when your extension is deactivated
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export function deactivate(): void {}
+
+const retrieveEntry = async () => {
+  const hatenablog = new Hatenablog()
+  const textEditor = vscode.window.activeTextEditor
+  if (!textEditor) {
+    console.error('textEditor not found')
+    return
+  }
+  const content = textEditor.document.getText()
+  const context = parseContext(content)
+  const id = context?.id
+  if (!id) {
+    return vscode.window.showErrorMessage('ID is required in context')
+  }
+
+  try {
+    const res = await hatenablog.getEntry(id)
+    console.log(res)
+    const content = res.entry.content._
+
+    saveContext(
+      {
+        id,
+        title: res.entry.title._,
+        categories: Array.isArray(res.entry.category)
+          ? res.entry.category.map((c) => c.$.term)
+          : [res.entry.category.$.term],
+        updated: res.entry.updated._,
+        draft: res.entry['app:control']['app:draft']._,
+      },
+      content
+    )
+
+    vscode.window.showInformationMessage(
+      `Successfully retrieved Entry content (ID: ${id})`
+    )
+  } catch (err) {
+    console.error(err)
+    vscode.window.showErrorMessage(String(err))
+  }
+}
 
 const postOrUpdate = async () => {
   const hatenablog = new Hatenablog()
@@ -105,9 +150,14 @@ const postOrUpdate = async () => {
   try {
     const res = await hatenablog.postOrUpdate(options)
     const id = res.entry.id._.match(/^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/)?.[1]
+
     const { hatenaId, blogId } = vscode.workspace.getConfiguration(
       'hatenablogger'
     )
+
+    if (!id) {
+      throw new Error('ID not retrieved.')
+    }
     const entryURL =
       draft !== 'yes'
         ? res.entry.link[1].$.href
@@ -124,19 +174,20 @@ const postOrUpdate = async () => {
     vscode.window.showInformationMessage(
       `Successfully ${context ? 'updated' : 'posted'} at ${entryURL}`
     )
-  } catch (err) {
+  } catch (err: unknown) {
     console.error(err)
-    vscode.window.showErrorMessage(err.toString())
+    vscode.window.showErrorMessage(String(err))
   }
 }
 
-function saveContext(context: Context) {
+function saveContext(context: Context, content?: string) {
   const textEditor = vscode.window.activeTextEditor
   if (!textEditor) {
     return
   }
-  const fileContent = removeContextComment(textEditor.document.getText())
-  const comment = `<!--\n${JSON.stringify(context)}\n-->\n${fileContent}`
+  const fileContent =
+    content ?? removeContextComment(textEditor.document.getText())
+  const comment = `<!--\n${JSON.stringify(context)}\n-->\n\n${fileContent}`
 
   const firstPosition = new vscode.Position(0, 0)
   const lastPosition = new vscode.Position(textEditor.document.lineCount, 0)
@@ -187,7 +238,7 @@ const uploadImage = async () => {
       vscode.window.showInformationMessage('Successfully image uploaded!')
     } catch (err) {
       console.error(err)
-      vscode.window.showErrorMessage(err.toString())
+      vscode.window.showErrorMessage(String(err))
     }
   }
 }
