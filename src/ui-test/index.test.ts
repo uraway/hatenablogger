@@ -107,7 +107,7 @@ describe('UI Tests', () => {
         return editor.getText()
       }, 2000)
       expect(text).match(
-        /^<!--\n{"id":"26006613702211539","title":"retrieved entry title","categories":\["category1", "カテゴリー2"\],"updated":".*","draft":"yes"}\n-->\n\nretrieved entry body/
+        /^<!--\n{"id":"26006613774708000","title":"retrieved entry title","categories":\["category1","カテゴリー2"\],"updated":".*","draft":"yes"}\n-->\n\nretrieved entry body/
       )
     })
 
