@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import axios, { AxiosRequestConfig, Method } from 'axios'
+import axios, { Method } from 'axios'
 import * as xml2js from 'xml2js'
 import wsse from 'wsse'
 
