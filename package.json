@@ -53,17 +53,26 @@
       "title": "Hatenablogger configuration",
       "properties": {
         "hatenablogger.hatenaId": {
-          "type": "string"
+          "type": "string",
+          "description": "Hatena ID"
         },
         "hatenablogger.blogId": {
-          "type": "string"
+          "type": "string",
+          "description": "Blog ID"
         },
         "hatenablogger.apiKey": {
-          "type": "string"
+          "type": "string",
+          "description": "API Key"
         },
         "hatenablogger.fotolifeFolder": {
           "type": "string",
-          "default": "Hatena Blog"
+          "default": "Hatena Blog",
+          "description": "画像をアップロードするフォルダを指定します"
+        },
+        "hatenablogger.alwaysAskCaption": {
+          "type": "boolean",
+          "default": "Hatena Blog",
+          "description": "画像をアップロードする際に、キャプションを追加するか尋ねます"
         }
       }
     }

@@ -205,18 +205,40 @@ const uploadImage = async () => {
     const position = textEditor.selection.active
     vscode.window.showInformationMessage('Uploading image...')
 
-    const title = await vscode.window.showInputBox({
+    let title = await vscode.window.showInputBox({
       placeHolder: 'Title',
       prompt: 'Please input title',
       value: basename(file.fsPath),
     })
+    title = title ?? basename(file.fsPath)
+
+    const { alwaysAskCaption } = vscode.workspace.getConfiguration('hatenablogger')
+    let caption: string | undefined
+    if (alwaysAskCaption) {
+      caption = await vscode.window.showInputBox({
+        placeHolder: 'Caption',
+        prompt: 'Please input caption if needed',
+        value: '',
+      })
+    }
+
     try {
       const res = await hatenafotolife.upload({
         file: file.fsPath,
-        title: title ?? basename(file.fsPath),
+        title,
       })
       const imageurl = res.entry['hatena:imageurl']._
-      const markdown = `![${title}](${imageurl})`
+      let markdown = `![${title}](${imageurl})`
+
+      if (caption) {
+        markdown = `<figure class="figure-image figure-image-fotolife" title="${caption}">
+
+${markdown}
+
+<figcaption>${caption}</figcaption></figure>
+          `
+      }
+
       textEditor.edit((edit) => edit.insert(position, markdown))
       vscode.window.showInformationMessage('Successfully image uploaded!')
     } catch (err) {
