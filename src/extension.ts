@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext): void {
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export function deactivate(): void {}
 
-const retrieveEntry = async () => {
+async function retrieveEntry() {
   const hatenablog = new Hatenablog()
   const textEditor = vscode.window.activeTextEditor
   if (!textEditor) {
@@ -78,7 +78,7 @@ const retrieveEntry = async () => {
   }
 }
 
-const postOrUpdate = async () => {
+async function postOrUpdate() {
   const hatenablog = new Hatenablog()
 
   const textEditor = vscode.window.activeTextEditor
@@ -208,7 +208,7 @@ function removeContextComment(content: string) {
   return content.replace(contextCommentRegExp, '')
 }
 
-const uploadImage = async () => {
+async function uploadImage() {
   const hatenafotolife = new Hatenafotolife()
 
   const uri = await vscode.window.showOpenDialog({})
@@ -265,6 +265,6 @@ ${markdown}
   }
 }
 
-const showErrorMessage = async (text: string) => {
+async function showErrorMessage(text: string) {
   await vscode.window.showErrorMessage(`HatenaBlogger was canceled. ${text}`)
 }
