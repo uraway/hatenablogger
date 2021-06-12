@@ -6,6 +6,14 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.5.0]
+
+- エントリの投稿・更新時に更新日時(Updated at)を尋ねる
+
+## [0.4.9]
+
+- スニペットを追加
+
 ## [0.4.4]
 
 ### Changed
