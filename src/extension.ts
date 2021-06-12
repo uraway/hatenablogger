@@ -13,6 +13,7 @@ type Context = {
   categories: string[]
   draft: 'yes' | 'no'
   updated: string
+  edited: string
 }
 
 // this method is called when your extension is activated
@@ -26,11 +27,9 @@ export function activate(context: vscode.ExtensionContext): void {
   // The commandId parameter must match the command field in package.json
   const disposables = []
   disposables.push(vscode.commands.registerCommand('extension.postOrUpdate', postOrUpdate))
-
   disposables.push(vscode.commands.registerCommand('extension.uploadImage', uploadImage))
-
   disposables.push(vscode.commands.registerCommand('extension.retrieveEntry', retrieveEntry))
-  console.log(disposables)
+
   context.subscriptions.concat(disposables)
 }
 
@@ -42,7 +41,7 @@ const retrieveEntry = async () => {
   const hatenablog = new Hatenablog()
   const textEditor = vscode.window.activeTextEditor
   if (!textEditor) {
-    console.error('textEditor not found')
+    console.error('TextEditor not found')
     return
   }
   const content = textEditor.document.getText()
@@ -55,7 +54,6 @@ const retrieveEntry = async () => {
 
   try {
     const res = await hatenablog.getEntry(id)
-    console.log(res)
     const content = res.entry.content._
 
     saveContext(
@@ -66,6 +64,7 @@ const retrieveEntry = async () => {
           ? res.entry.category.map((c) => c.$.term)
           : [res.entry.category.$.term],
         updated: res.entry.updated._,
+        edited: res.entry['app:edited']._,
         draft: res.entry['app:control']['app:draft']._,
       },
       content
@@ -118,12 +117,15 @@ const postOrUpdate = async () => {
    * if context exists, use context.updated as default value.
    * unless, use now as default value
    */
-  // const now = dayjs(new Date()).format("YYYY-MM-DDTHH:mm:ssZ");
-  // const inputUpdated = await vscode.window.showInputBox({
-  //   placeHolder: now,
-  //   prompt: "Updated at",
-  //   value: context?.updated ?? now,
-  // });
+  const now = new Date().toISOString()
+  let inputUpdated = await vscode.window.showInputBox({
+    placeHolder: now,
+    prompt: 'Please input `updated at`',
+    value: context?.updated ?? now,
+  })
+  if (!inputUpdated) {
+    inputUpdated = now
+  }
 
   const inputPublished = await vscode.window.showInputBox({
     placeHolder: 'yes',
@@ -143,7 +145,7 @@ const postOrUpdate = async () => {
     title: inputTitle,
     content: removeContextComment(content),
     categories,
-    // updated: inputUpdated,
+    updated: inputUpdated,
     draft,
   }
 
@@ -164,6 +166,7 @@ const postOrUpdate = async () => {
       title: res.entry.title._,
       categories,
       updated: res.entry.updated._,
+      edited: res.entry['app:edited']._,
       draft,
     })
 

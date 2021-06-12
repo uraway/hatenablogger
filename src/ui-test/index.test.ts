@@ -59,7 +59,7 @@ describe('UI Tests', () => {
       expect(hasChanges).to.equals(true)
       console.log(text)
       expect(text).match(
-        /^<!--\n{"id":"\d*","title":"new entry","categories":\["category1","カテゴリー2"\],"updated":".*","draft":"yes"}\n-->\n/
+        /^<!--\n{"id":"\d*","title":"new entry","categories":\["category1","カテゴリー2"\],"updated":".*","edited":".*","draft":"yes"}\n-->\n/
       )
     })
 
@@ -87,7 +87,7 @@ describe('UI Tests', () => {
       }, 2000)
       console.log(text)
       expect(text).match(
-        /^<!--\n{"id":"\d*","title":"updated entry","categories":\["new category"\],"updated":".*","draft":"yes"}\n-->\n.*/
+        /^<!--\n{"id":"\d*","title":"updated entry","categories":\["new category"\],"updated":"2021-06-12T12:00:00\+09:00","edited":".*","draft":"yes"}\n-->\n.*/
       )
     })
 
@@ -107,7 +107,7 @@ describe('UI Tests', () => {
         return editor.getText()
       }, 2000)
       expect(text).match(
-        /^<!--\n{"id":"26006613774708000","title":"retrieved entry title","categories":\["category1","カテゴリー2"\],"updated":".*","draft":"yes"}\n-->\n\nretrieved entry body/
+        /^<!--\n{"id":"26006613774708000","title":"retrieved entry title","categories":\["category1","カテゴリー2"\],"updated":"2021-06-12T12:00:00\+09:00","edited":".*","draft":"yes"}\n-->\n\nretrieved entry body/
       )
     })
 
@@ -217,6 +217,12 @@ async function inputPostEntryFieldsWithTests({
   )
   await categoryInput.setText(`${categories.join(',')}`)
   await categoryInput.confirm()
+
+  const updatedAtInput = await InputBox.create()
+  expect(await updatedAtInput.getMessage()).to.be.equal(
+    "Please input `updated at` (Press 'Enter' to confirm or 'Escape' to cancel)"
+  )
+  await updatedAtInput.confirm()
 
   const publicationInput = await InputBox.create()
   expect(await publicationInput.getMessage()).to.be.equal(
