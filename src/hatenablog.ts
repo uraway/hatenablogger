@@ -9,6 +9,7 @@ type UpdateOption = {
   content: string
   categories: string[]
   draft: 'yes' | 'no'
+  updated: string
 }
 
 type PostOption = {
@@ -16,11 +17,12 @@ type PostOption = {
   content: string
   categories: string[]
   draft: 'yes' | 'no'
+  updated: string
 }
 
 type Option = UpdateOption | PostOption
 
-type Body = {
+type RequestBody = {
   entry: {
     $: {
       xmlns: string
@@ -48,7 +50,7 @@ type Body = {
   }
 }
 
-type Response = {
+type ResponseBody = {
   entry: {
     id: {
       _: string
@@ -75,6 +77,12 @@ type Response = {
     content: {
       _: string
     }
+    'app:edited': {
+      _: string
+    }
+    published: {
+      _: string
+    }
   }
 }
 
@@ -90,17 +98,17 @@ export default class Hatenablog {
     this.apiKey = apiKey
   }
 
-  postOrUpdate = (options: Option): Promise<Response> => {
+  postOrUpdate = (options: Option): Promise<ResponseBody> => {
     return 'id' in options ? this.update(options) : this.post(options)
   }
 
-  getEntry = (id: string): Promise<Response> => {
+  getEntry = (id: string): Promise<ResponseBody> => {
     const path = `/${this.hatenaId}/${this.blogId}/atom/entry/${id}`
     return this.request({ method: 'GET', path })
   }
 
-  private createBody = (options: Option): Body => {
-    const { title, content, categories, draft } = options
+  private createBody = (options: Option): RequestBody => {
+    const { title, content, categories, draft, updated } = options
     const body = {
       entry: {
         $: {
@@ -119,9 +127,9 @@ export default class Hatenablog {
         category: categories.map((c) => ({
           $: { term: c },
         })),
-        // updated: {
-        //   _: updated,
-        // },
+        updated: {
+          _: updated,
+        },
         'app:control': { 'app:draft': { _: draft } },
       },
     }
@@ -129,20 +137,20 @@ export default class Hatenablog {
     return body
   }
 
-  private post = (options: PostOption): Promise<Response> => {
+  private post = (options: PostOption): Promise<ResponseBody> => {
     const body = this.createBody(options)
     const path = `/${this.hatenaId}/${this.blogId}/atom/entry`
     return this.request({ method: 'POST', path, body })
   }
 
-  private update = (options: UpdateOption): Promise<Response> => {
+  private update = (options: UpdateOption): Promise<ResponseBody> => {
     const { id } = options
     const body = this.createBody(options)
     const path = `/${this.hatenaId}/${this.blogId}/atom/entry/${id}`
     return this.request({ method: 'PUT', path, body })
   }
 
-  private request = async (options: { method: Method; path: string; body?: Body }): Promise<Response> => {
+  private request = async (options: { method: Method; path: string; body?: RequestBody }): Promise<ResponseBody> => {
     const { method, path, body } = options
     const token = wsse({
       username: this.hatenaId,
@@ -159,7 +167,7 @@ export default class Hatenablog {
           'X-WSSE': token.getWSSEHeader(),
         },
       })
-      return this.toJson<Response>(res.data)
+      return this.toJson<ResponseBody>(res.data)
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         throw err?.response?.data
