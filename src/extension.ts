@@ -211,7 +211,13 @@ function removeContextComment(content: string) {
 async function uploadImage() {
   const hatenafotolife = new Hatenafotolife()
 
-  const uri = await vscode.window.showOpenDialog({})
+  const { allowedImageExtensions } = vscode.workspace.getConfiguration('hatenablogger')
+
+  const uri = await vscode.window.showOpenDialog({
+    filters: {
+      Image: allowedImageExtensions ?? [],
+    },
+  })
   if (!uri) {
     return
   }
@@ -220,7 +226,6 @@ async function uploadImage() {
 
   if (textEditor && textEditor.selection.isEmpty) {
     const position = textEditor.selection.active
-    vscode.window.showInformationMessage('Uploading image...')
 
     let title = await vscode.window.showInputBox({
       placeHolder: 'Title',
@@ -240,10 +245,13 @@ async function uploadImage() {
     }
 
     try {
+      vscode.window.showInformationMessage('Uploading image...')
+
       const res = await hatenafotolife.upload({
         file: file.fsPath,
         title,
       })
+
       const imageurl = res.entry['hatena:imageurl']._
       let markdown = `![${title}](${imageurl})`
 
