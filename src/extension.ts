@@ -5,8 +5,9 @@ import * as vscode from 'vscode'
 import Hatenablog from './hatenablog'
 import Hatenafotolife from './hatenafotolife'
 import { basename } from 'path'
+import open from 'open'
 
-const contextCommentRegExp = /^<!--([\s\S]*?)-->\n?/
+const contextCommentRegExp = /^<!--([\s\S]*?)-->\n\n?/
 type Context = {
   id: string
   title: string
@@ -153,7 +154,7 @@ const postOrUpdate = async () => {
     const res = await hatenablog.postOrUpdate(options)
     const id = res.entry.id._.match(/^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/)?.[1]
 
-    const { hatenaId, blogId } = vscode.workspace.getConfiguration('hatenablogger')
+    const { hatenaId, blogId, openAfterPostOrUpdate } = vscode.workspace.getConfiguration('hatenablogger')
 
     if (!id) {
       throw new Error('ID not retrieved.')
@@ -171,6 +172,10 @@ const postOrUpdate = async () => {
     })
 
     vscode.window.showInformationMessage(`Successfully ${context ? 'updated' : 'posted'} at ${entryURL}`)
+
+    if (openAfterPostOrUpdate) {
+      await open(entryURL)
+    }
   } catch (err: unknown) {
     console.error(err)
     showErrorMessage(String(err))
@@ -183,6 +188,7 @@ function saveContext(context: Context, content?: string) {
     return
   }
   const fileContent = content ?? removeContextComment(textEditor.document.getText())
+
   const comment = `<!--\n${JSON.stringify(context)}\n-->\n\n${fileContent}`
 
   const firstPosition = new vscode.Position(0, 0)
