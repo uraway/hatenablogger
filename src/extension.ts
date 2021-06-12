@@ -49,7 +49,8 @@ const retrieveEntry = async () => {
   const context = parseContext(content)
   const id = context?.id
   if (!id) {
-    return vscode.window.showErrorMessage('ID is required in context')
+    showErrorMessage('ID is required in context.')
+    return
   }
 
   try {
@@ -73,7 +74,7 @@ const retrieveEntry = async () => {
     vscode.window.showInformationMessage(`Successfully retrieved Entry content (ID: ${id})`)
   } catch (err) {
     console.error(err)
-    vscode.window.showErrorMessage(String(err))
+    showErrorMessage(String(err))
   }
 }
 
@@ -82,7 +83,7 @@ const postOrUpdate = async () => {
 
   const textEditor = vscode.window.activeTextEditor
   if (!textEditor) {
-    console.error('textEditor not found')
+    showErrorMessage('TextEditor was not found.')
     return
   }
   const content = textEditor.document.getText()
@@ -98,7 +99,8 @@ const postOrUpdate = async () => {
   })
 
   if (!inputTitle) {
-    return vscode.window.showErrorMessage('title is required')
+    showErrorMessage('Title is required')
+    return
   }
 
   const inputCategories = await vscode.window.showInputBox({
@@ -106,6 +108,11 @@ const postOrUpdate = async () => {
     prompt: 'Please input categories. (Comma deliminated)',
     value: categoriesValue,
   })
+
+  if (inputCategories === undefined) {
+    showErrorMessage('ESC was pressed.')
+    return
+  }
 
   /**
    * if context exists, use context.updated as default value.
@@ -124,7 +131,8 @@ const postOrUpdate = async () => {
   })
 
   if (inputPublished === undefined) {
-    return vscode.window.showErrorMessage('hatenablogger was cancelled')
+    showErrorMessage('ESC was pressed.')
+    return
   }
 
   const categories = inputCategories ? inputCategories.split(',') : []
@@ -162,7 +170,7 @@ const postOrUpdate = async () => {
     vscode.window.showInformationMessage(`Successfully ${context ? 'updated' : 'posted'} at ${entryURL}`)
   } catch (err: unknown) {
     console.error(err)
-    vscode.window.showErrorMessage(String(err))
+    showErrorMessage(String(err))
   }
 }
 
@@ -243,7 +251,11 @@ ${markdown}
       vscode.window.showInformationMessage('Successfully image uploaded!')
     } catch (err) {
       console.error(err)
-      vscode.window.showErrorMessage(String(err))
+      showErrorMessage(String(err))
     }
   }
+}
+
+const showErrorMessage = async (text: string) => {
+  await vscode.window.showErrorMessage(`HatenaBlogger was canceled. ${text}`)
 }
