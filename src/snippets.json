@@ -1,0 +1,47 @@
+{
+  "content": {
+    "prefix": "content",
+    "body": ["[:contents]"],
+    "description": "エントリの見出しから目次を自動的に作成し表示します"
+  },
+  "annotation": {
+    "prefix": "annotation",
+    "body": ["((${1}))"],
+    "description": "エントリに注釈を設定します"
+  },
+  "more": {
+    "prefix": "more",
+    "body": ["<!-- more -->"],
+    "description": "その後の内容を「続きを読む」にします"
+  },
+  "google": {
+    "prefix": "google",
+    "body": ["[google:${1}]"],
+    "description": "Googleの検索結果にリンクします"
+  },
+  "wikipedia": {
+    "prefix": "wikipedia",
+    "body": ["[wikipedia:${1}]"],
+    "description": "Wikipediaの記事にリンクします"
+  },
+  "amazon": {
+    "prefix": "amazon",
+    "body": ["[amazon:${1}]"],
+    "description": "Amazonページにリンクします"
+  },
+  "linkWithImage": {
+    "prefix": "linkWithImage",
+    "body": ["[${1}:embed:cite]"],
+    "description": "埋め込みリンクを作成します"
+  },
+  "linkWithTitle": {
+    "prefix": "linkWithTitle",
+    "body": ["[${1}:title]"],
+    "description": "タイトル付きリンクを作成します"
+  },
+  "link": {
+    "prefix": "link",
+    "body": ["[${1}]"],
+    "description": "タイトル付きリンクを作成します"
+  }
+}
