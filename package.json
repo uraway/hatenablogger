@@ -65,6 +65,11 @@
           "type": "string",
           "description": "API Key"
         },
+        "hatenablogger.openAfterPostOrUpdate": {
+          "type": "boolean",
+          "description": "エントリの投稿・更新後にURLを開きます",
+          "default": false
+        },
         "hatenablogger.fotolifeFolder": {
           "type": "string",
           "default": "Hatena Blog",
@@ -74,6 +79,20 @@
           "type": "boolean",
           "default": "Hatena Blog",
           "description": "画像をアップロードする際に、キャプションを追加するか尋ねます"
+        },
+        "hatenablogger.allowedImageExtensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "png",
+            "jpg",
+            "jpeg",
+            "gif",
+            "bmp"
+          ],
+          "description": "はてなフォトライフにアップロードできる画像の拡張子を指定します"
         }
       }
     },
@@ -133,6 +152,7 @@
   "dependencies": {
     "axios": "0.21.1",
     "hatena-fotolife-api": "2.0.0",
+    "open": "^8.2.0",
     "wsse": "5.1.0",
     "xml2js": "0.4.23"
   }

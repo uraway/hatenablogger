@@ -5,8 +5,9 @@ import * as vscode from 'vscode'
 import Hatenablog from './hatenablog'
 import Hatenafotolife from './hatenafotolife'
 import { basename } from 'path'
+import open from 'open'
 
-const contextCommentRegExp = /^<!--([\s\S]*?)-->\n?/
+const contextCommentRegExp = /^<!--([\s\S]*?)-->\n\n?/
 type Context = {
   id: string
   title: string
@@ -37,7 +38,7 @@ export function activate(context: vscode.ExtensionContext): void {
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export function deactivate(): void {}
 
-const retrieveEntry = async () => {
+async function retrieveEntry() {
   const hatenablog = new Hatenablog()
   const textEditor = vscode.window.activeTextEditor
   if (!textEditor) {
@@ -77,7 +78,7 @@ const retrieveEntry = async () => {
   }
 }
 
-const postOrUpdate = async () => {
+async function postOrUpdate() {
   const hatenablog = new Hatenablog()
 
   const textEditor = vscode.window.activeTextEditor
@@ -153,7 +154,7 @@ const postOrUpdate = async () => {
     const res = await hatenablog.postOrUpdate(options)
     const id = res.entry.id._.match(/^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/)?.[1]
 
-    const { hatenaId, blogId } = vscode.workspace.getConfiguration('hatenablogger')
+    const { hatenaId, blogId, openAfterPostOrUpdate } = vscode.workspace.getConfiguration('hatenablogger')
 
     if (!id) {
       throw new Error('ID not retrieved.')
@@ -171,6 +172,10 @@ const postOrUpdate = async () => {
     })
 
     vscode.window.showInformationMessage(`Successfully ${context ? 'updated' : 'posted'} at ${entryURL}`)
+
+    if (openAfterPostOrUpdate) {
+      await open(entryURL)
+    }
   } catch (err: unknown) {
     console.error(err)
     showErrorMessage(String(err))
@@ -183,6 +188,7 @@ function saveContext(context: Context, content?: string) {
     return
   }
   const fileContent = content ?? removeContextComment(textEditor.document.getText())
+
   const comment = `<!--\n${JSON.stringify(context)}\n-->\n\n${fileContent}`
 
   const firstPosition = new vscode.Position(0, 0)
@@ -202,10 +208,16 @@ function removeContextComment(content: string) {
   return content.replace(contextCommentRegExp, '')
 }
 
-const uploadImage = async () => {
+async function uploadImage() {
   const hatenafotolife = new Hatenafotolife()
 
-  const uri = await vscode.window.showOpenDialog({})
+  const { allowedImageExtensions } = vscode.workspace.getConfiguration('hatenablogger')
+
+  const uri = await vscode.window.showOpenDialog({
+    filters: {
+      Image: allowedImageExtensions ?? [],
+    },
+  })
   if (!uri) {
     return
   }
@@ -214,7 +226,6 @@ const uploadImage = async () => {
 
   if (textEditor && textEditor.selection.isEmpty) {
     const position = textEditor.selection.active
-    vscode.window.showInformationMessage('Uploading image...')
 
     let title = await vscode.window.showInputBox({
       placeHolder: 'Title',
@@ -234,10 +245,13 @@ const uploadImage = async () => {
     }
 
     try {
+      vscode.window.showInformationMessage('Uploading image...')
+
       const res = await hatenafotolife.upload({
         file: file.fsPath,
         title,
       })
+
       const imageurl = res.entry['hatena:imageurl']._
       let markdown = `![${title}](${imageurl})`
 
@@ -259,6 +273,6 @@ ${markdown}
   }
 }
 
-const showErrorMessage = async (text: string) => {
+async function showErrorMessage(text: string) {
   await vscode.window.showErrorMessage(`HatenaBlogger was canceled. ${text}`)
 }
