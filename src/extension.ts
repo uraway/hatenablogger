@@ -49,7 +49,8 @@ const retrieveEntry = async () => {
   const context = parseContext(content)
   const id = context?.id
   if (!id) {
-    return vscode.window.showErrorMessage('ID is required in context')
+    showErrorMessage('ID is required in context.')
+    return
   }
 
   try {
@@ -73,7 +74,7 @@ const retrieveEntry = async () => {
     vscode.window.showInformationMessage(`Successfully retrieved Entry content (ID: ${id})`)
   } catch (err) {
     console.error(err)
-    vscode.window.showErrorMessage(String(err))
+    showErrorMessage(String(err))
   }
 }
 
@@ -82,7 +83,7 @@ const postOrUpdate = async () => {
 
   const textEditor = vscode.window.activeTextEditor
   if (!textEditor) {
-    console.error('textEditor not found')
+    showErrorMessage('TextEditor was not found.')
     return
   }
   const content = textEditor.document.getText()
@@ -98,7 +99,8 @@ const postOrUpdate = async () => {
   })
 
   if (!inputTitle) {
-    return vscode.window.showErrorMessage('title is required')
+    showErrorMessage('Title is required')
+    return
   }
 
   const inputCategories = await vscode.window.showInputBox({
@@ -106,6 +108,11 @@ const postOrUpdate = async () => {
     prompt: 'Please input categories. (Comma deliminated)',
     value: categoriesValue,
   })
+
+  if (inputCategories === undefined) {
+    showErrorMessage('ESC was pressed.')
+    return
+  }
 
   /**
    * if context exists, use context.updated as default value.
@@ -124,7 +131,8 @@ const postOrUpdate = async () => {
   })
 
   if (inputPublished === undefined) {
-    return vscode.window.showErrorMessage('hatenablogger was cancelled')
+    showErrorMessage('ESC was pressed.')
+    return
   }
 
   const categories = inputCategories ? inputCategories.split(',') : []
@@ -162,7 +170,7 @@ const postOrUpdate = async () => {
     vscode.window.showInformationMessage(`Successfully ${context ? 'updated' : 'posted'} at ${entryURL}`)
   } catch (err: unknown) {
     console.error(err)
-    vscode.window.showErrorMessage(String(err))
+    showErrorMessage(String(err))
   }
 }
 
@@ -205,23 +213,49 @@ const uploadImage = async () => {
     const position = textEditor.selection.active
     vscode.window.showInformationMessage('Uploading image...')
 
-    const title = await vscode.window.showInputBox({
+    let title = await vscode.window.showInputBox({
       placeHolder: 'Title',
       prompt: 'Please input title',
       value: basename(file.fsPath),
     })
+    title = title ?? basename(file.fsPath)
+
+    const { alwaysAskCaption } = vscode.workspace.getConfiguration('hatenablogger')
+    let caption: string | undefined
+    if (alwaysAskCaption) {
+      caption = await vscode.window.showInputBox({
+        placeHolder: 'Caption',
+        prompt: 'Please input caption if needed',
+        value: '',
+      })
+    }
+
     try {
       const res = await hatenafotolife.upload({
         file: file.fsPath,
-        title: title ?? basename(file.fsPath),
+        title,
       })
       const imageurl = res.entry['hatena:imageurl']._
-      const markdown = `![${title}](${imageurl})`
+      let markdown = `![${title}](${imageurl})`
+
+      if (caption) {
+        markdown = `<figure class="figure-image figure-image-fotolife" title="${caption}">
+
+${markdown}
+
+<figcaption>${caption}</figcaption></figure>
+          `
+      }
+
       textEditor.edit((edit) => edit.insert(position, markdown))
       vscode.window.showInformationMessage('Successfully image uploaded!')
     } catch (err) {
       console.error(err)
-      vscode.window.showErrorMessage(String(err))
+      showErrorMessage(String(err))
     }
   }
+}
+
+const showErrorMessage = async (text: string) => {
+  await vscode.window.showErrorMessage(`HatenaBlogger was canceled. ${text}`)
 }
