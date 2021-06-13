@@ -60,8 +60,7 @@ async function dumpAllEntries() {
       'Cancel'
     )
     if (!dirPath?.[0] || isConfirmed !== 'OK') {
-      showErrorMessage('Abort dump process.')
-      return
+      throw new Error('Abort dump process.')
     }
     for (const entry of entries) {
       const id = getId(entry)
@@ -78,17 +77,16 @@ async function dumpAllEntries() {
 }
 
 async function retrieveEntry() {
-  const id = getContext()?.id ?? (await pickEntryId())
-  if (!id) {
-    showErrorMessage('ID is required in context.')
-    return
-  }
-
   try {
-    const res = await hatenablog.getEntry(id)
-    const content = res.entry.content._
+    const id = getContext()?.id ?? (await pickEntryId())
+    if (!id) {
+      throw new Error('ID is required in context.')
+    }
 
-    const context = createContext(res.entry, { id })
+    const { entry } = await hatenablog.getEntry(id)
+    const content = entry.content._
+
+    const context = createContext(entry, { id })
     saveContext(context, content)
 
     vscode.window.showInformationMessage(`Successfully retrieved Entry content (ID: ${id})`)
@@ -98,75 +96,71 @@ async function retrieveEntry() {
 }
 
 async function postOrUpdate() {
-  const hatenablog = new Hatenablog()
-
-  const textEditor = vscode.window.activeTextEditor
-  if (!textEditor) {
-    showErrorMessage('TextEditor was not found.')
-    return
-  }
-  const content = textEditor.document.getText()
-  const context = getContext()
-
-  const inputTitle = await vscode.window.showInputBox({
-    placeHolder: 'Entry title',
-    prompt: 'Please input an entry title',
-    value: context?.title ?? '',
-  })
-
-  if (!inputTitle) {
-    showErrorMessage('Title is required')
-    return
-  }
-
-  const inputCategories = await vscode.window.showInputBox({
-    placeHolder: 'Categories',
-    prompt: 'Please input categories. (Comma deliminated)',
-    value: context?.categories.toString() ?? '',
-  })
-
-  if (inputCategories === undefined) {
-    showErrorMessage('ESC was pressed.')
-    return
-  }
-
-  /**
-   * if context exists, use context.updated as default value.
-   * unless, use now as default value
-   */
-  const now = new Date().toISOString()
-  let inputUpdated = await vscode.window.showInputBox({
-    placeHolder: now,
-    prompt: 'Please input `updated at`',
-    value: context?.updated ?? now,
-  })
-  if (!inputUpdated) {
-    inputUpdated = now
-  }
-
-  const inputPublished = await vscode.window.showInputBox({
-    placeHolder: 'yes',
-    prompt: 'Do you want to publish it? Type "yes" or save as draft',
-  })
-
-  if (inputPublished === undefined) {
-    showErrorMessage('ESC was pressed.')
-    return
-  }
-
-  const categories = inputCategories ? inputCategories.split(',') : []
-  const draft: 'yes' | 'no' = inputPublished === 'yes' ? 'no' : 'yes'
-
-  const options = {
-    id: context?.id,
-    title: inputTitle,
-    content: removeContextComment(content),
-    categories,
-    updated: inputUpdated,
-    draft,
-  }
-
   try {
+    const hatenablog = new Hatenablog()
+
+    const textEditor = vscode.window.activeTextEditor
+    if (!textEditor) {
+      throw new Error('TextEditor was not found')
+    }
+    const content = textEditor.document.getText()
+    const previousContext = getContext()
+
+    const inputTitle = await vscode.window.showInputBox({
+      placeHolder: 'Entry title',
+      prompt: 'Please input an entry title',
+      value: previousContext?.title ?? '',
+    })
+
+    if (!inputTitle) {
+      throw new Error('Title is required')
+    }
+
+    const inputCategories = await vscode.window.showInputBox({
+      placeHolder: 'Categories',
+      prompt: 'Please input categories. (Comma deliminated)',
+      value: previousContext?.categories.toString() ?? '',
+    })
+
+    if (inputCategories === undefined) {
+      throw new Error('Abort process')
+    }
+
+    /**
+     * if context exists, use context.updated as default value.
+     * unless, use now as default value
+     */
+    const now = new Date().toISOString()
+    let inputUpdated = await vscode.window.showInputBox({
+      placeHolder: now,
+      prompt: 'Please input `updated at`',
+      value: previousContext?.updated ?? now,
+    })
+    if (!inputUpdated) {
+      inputUpdated = now
+    }
+
+    const inputPublished = await vscode.window.showInputBox({
+      placeHolder: 'yes',
+      prompt: 'Do you want to publish it? Type "yes" or save as draft',
+    })
+
+    if (inputPublished === undefined) {
+      throw new Error('Abort process')
+    }
+
+    const categories = inputCategories ? inputCategories.split(',') : []
+    const draft: 'yes' | 'no' = inputPublished === 'yes' ? 'no' : 'yes'
+
+    const options = {
+      id: previousContext?.id,
+      title: inputTitle,
+      content: removeContextComment(content),
+      categories,
+      updated: inputUpdated,
+      draft,
+    }
+
     const { entry } = await hatenablog.postOrUpdate(options)
     const id = getId(entry)
 
@@ -258,12 +252,12 @@ async function uploadImage() {
     try {
       vscode.window.showInformationMessage('Uploading image...')
 
-      const res = await hatenafotolife.upload({
+      const { entry } = await hatenafotolife.upload({
         file: fsPath,
         title,
       })
 
-      const imageurl = res.entry['hatena:imageurl']._
+      const imageurl = entry['hatena:imageurl']._
 
       /**
        * デフォルトURL
