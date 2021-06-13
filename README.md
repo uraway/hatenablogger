@@ -51,6 +51,10 @@ This VSCode extension helps you to manage entries on HatenaBlog and images on Ha
 
 ![retrieve-entry](./images/retrieve-entry.gif)
 
+### エントリの置換: `Hatenablogger: Replace Content In All Entries`
+
+正規表現でエントリを検索し、そのワードを置換して更新します
+
 ### イメージのアップロード: `Hatenablogger: Upload Image`
 
 はてなフォトライフへ画像をアップロードし、マークダウン形式で画像 URL を挿入します

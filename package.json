@@ -30,7 +30,8 @@
     "onCommand:extension.postOrUpdate",
     "onCommand:extension.uploadImage",
     "onCommand:extension.retrieveEntry",
-    "onCommand:extension.dumpAllEntries"
+    "onCommand:extension.dumpAllEntries",
+    "onCommand:extension.replaceContentInAllEntries"
   ],
   "main": "./out/main.js",
   "contributes": {
@@ -53,6 +54,11 @@
       {
         "command": "extension.dumpAllEntries",
         "title": "Dump All Entries",
+        "category": "Hatenablogger"
+      },
+      {
+        "command": "extension.replaceContentInAllEntries",
+        "title": "Replace Content In All Entries",
         "category": "Hatenablogger"
       }
     ],

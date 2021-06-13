@@ -35,7 +35,7 @@ type RequestBody = {
       $: {
         type: string
       }
-      _: string
+      _?: string
     }
     category: {
       $: {
@@ -75,7 +75,7 @@ export type ResponseBody = {
       }
     }
     content: {
-      _: string
+      _?: string
     }
     'app:edited': {
       _: string

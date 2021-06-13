@@ -39,6 +39,7 @@ export function activate(context: vscode.ExtensionContext): void {
   disposables.push(vscode.commands.registerCommand('extension.uploadImage', uploadImage))
   disposables.push(vscode.commands.registerCommand('extension.retrieveEntry', retrieveEntry))
   disposables.push(vscode.commands.registerCommand('extension.dumpAllEntries', dumpAllEntries))
+  disposables.push(vscode.commands.registerCommand('extension.replaceContentInAllEntries', replaceContentInAllEntries))
 
   context.subscriptions.concat(disposables)
 }
@@ -78,6 +79,50 @@ async function dumpAllEntries() {
   }
 }
 
+async function replaceContentInAllEntries() {
+  try {
+    const findTextInput = await vscode.window.showInputBox({
+      prompt: 'Find this pattern using RegExp in all entries',
+    })
+    if (!findTextInput) {
+      throw new Error('Abort find process')
+    }
+    const entries = await hatenablog.allEntries(/** Discard cache */ true)
+    const regexp = new RegExp(findTextInput)
+    const filteredEntries = entries.filter((entry) => {
+      return entry.content._?.match(regexp)
+    })
+
+    if (filteredEntries?.length === 0) {
+      throw new Error('No entry was found')
+    }
+
+    const replaceTextInput = await vscode.window.showInputBox({
+      prompt: `${filteredEntries.length} entries were found. Enter this to use for replacement`,
+    })
+
+    if (!replaceTextInput) {
+      throw new Error('Abort find process')
+    }
+
+    let count = 0
+    for (const entry of filteredEntries) {
+      const options = {
+        ...createContext(entry),
+        content: entry.content?._?.replace(regexp, replaceTextInput) ?? '',
+      }
+      await hatenablog.postOrUpdate(options)
+      count += 1
+    }
+
+    await vscode.window.showInformationMessage(
+      `Successfully replaced ${findTextInput} with ${replaceTextInput} in ${count} entries`
+    )
+  } catch (err) {
+    showErrorMessage(err)
+  }
+}
+
 async function retrieveEntry() {
   try {
     const id = getContext()?.id ?? (await pickEntryId())
@@ -99,8 +144,6 @@ async function retrieveEntry() {
 
 async function postOrUpdate() {
   try {
-    const hatenablog = new Hatenablog()
-
     const textEditor = vscode.window.activeTextEditor
     if (!textEditor) {
       throw new Error('TextEditor was not found')
