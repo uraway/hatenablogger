@@ -130,7 +130,7 @@ export default class Hatenablog {
     return this.request({ method: 'GET', path })
   }
 
-  allEntries = async (discardCache: boolean = false): Promise<ListResponse['feed']['entry']> => {
+  allEntries = async (discardCache = false): Promise<ListResponse['feed']['entry']> => {
     /** Cache hit */
     if (results.length > 0 && !discardCache) return results
 

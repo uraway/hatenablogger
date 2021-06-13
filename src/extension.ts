@@ -359,14 +359,8 @@ function getConfiguration(): {
   openAfterPostOrUpdate: boolean
   alwaysAskCaption: boolean
 } {
-  const {
-    hatenaId,
-    blogId,
-    apiKey,
-    allowedImageExtensions,
-    openAfterPostOrUpdate,
-    alwaysAskCaption,
-  } = vscode.workspace.getConfiguration('hatenablogger')
+  const { hatenaId, blogId, apiKey, allowedImageExtensions, openAfterPostOrUpdate, alwaysAskCaption } =
+    vscode.workspace.getConfiguration('hatenablogger')
   return {
     hatenaId,
     blogId,
