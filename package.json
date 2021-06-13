@@ -94,7 +94,7 @@
         },
         "hatenablogger.askCaption": {
           "type": "boolean",
-          "default": "Hatena Blog",
+          "default": false,
           "description": "画像をアップロードする際に、キャプションを追加するか尋ねます"
         },
         "hatenablogger.allowedImageExtensions": {
