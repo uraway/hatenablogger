@@ -7,6 +7,7 @@ import Hatenafotolife from './hatenafotolife'
 import { basename } from 'path'
 import open from 'open'
 import * as fs from 'fs'
+import dayjs from 'dayjs'
 
 const CONTEXT_COMMENT_RegExp = /^<!--([\s\S]*?)-->\n\n?/
 const ID_RegExp = /^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/
@@ -117,10 +118,32 @@ async function postOrUpdate() {
       throw new Error('Title is required')
     }
 
+    let defaultCategoriesValue = previousContext?.categories ?? []
+
+    /**
+     * カテゴリAPIからカテゴリ一覧を取得して選択
+     */
+    const { askCategory } = getConfiguration()
+    if (askCategory) {
+      const allCategories = await hatenablog.allCategories()
+      const categoriesItems = allCategories['app:categories']['atom:category']
+      const selectedCategories = await vscode.window.showQuickPick(
+        Array.isArray(categoriesItems) ? categoriesItems.map((c) => c.$.term) : [categoriesItems.$.term],
+        {
+          canPickMany: true,
+          ignoreFocusOut: true,
+          placeHolder: 'Select category',
+        }
+      )
+      if (selectedCategories) {
+        defaultCategoriesValue = [...defaultCategoriesValue, ...selectedCategories]
+      }
+    }
+
     const inputCategories = await vscode.window.showInputBox({
       placeHolder: 'Categories',
       prompt: 'Please input categories. (Comma deliminated)',
-      value: previousContext?.categories.toString() ?? '',
+      value: defaultCategoriesValue.join(', '),
     })
 
     if (inputCategories === undefined) {
@@ -131,7 +154,7 @@ async function postOrUpdate() {
      * if context exists, use context.updated as default value.
      * unless, use now as default value
      */
-    const now = new Date().toISOString()
+    const now = dayjs().format()
     let inputUpdated = await vscode.window.showInputBox({
       placeHolder: now,
       prompt: 'Please input `updated at`',
@@ -143,8 +166,8 @@ async function postOrUpdate() {
         return 'Invaild format'
       },
     })
-    if (!inputUpdated) {
-      inputUpdated = now
+    if (inputUpdated === undefined) {
+      throw new Error('Abort process')
     }
 
     const inputPublished = await vscode.window.showInputBox({
@@ -378,15 +401,10 @@ function getConfiguration(): {
   allowedImageExtensions: string[]
   openAfterPostOrUpdate: boolean
   alwaysAskCaption: boolean
+  askCategory: boolean
 } {
-  const {
-    hatenaId,
-    blogId,
-    apiKey,
-    allowedImageExtensions,
-    openAfterPostOrUpdate,
-    alwaysAskCaption,
-  } = vscode.workspace.getConfiguration('hatenablogger')
+  const { hatenaId, blogId, apiKey, allowedImageExtensions, openAfterPostOrUpdate, alwaysAskCaption, askCategory } =
+    vscode.workspace.getConfiguration('hatenablogger')
   return {
     hatenaId,
     blogId,
@@ -394,6 +412,7 @@ function getConfiguration(): {
     allowedImageExtensions,
     openAfterPostOrUpdate,
     alwaysAskCaption,
+    askCategory,
   }
 }
 

@@ -97,6 +97,23 @@ type ListResponse = {
   }
 }
 
+type ResponseCategories = {
+  'app:categories': {
+    'atom:category':
+      | {
+          $: {
+            term: string
+          }
+        }
+      | {
+          $: {
+            term: string
+          }
+        }[]
+  }
+}
+
+/** Cache storage */
 let results: ListResponse['feed']['entry'] = []
 
 export default class Hatenablog {
@@ -112,11 +129,16 @@ export default class Hatenablog {
   }
 
   postOrUpdate = (options: Option): Promise<ResponseBody> => {
-    return 'id' in options ? this.update(options) : this.post(options)
+    return 'id' in options && options.id ? this.update(options) : this.post(options)
   }
 
   getEntry = (id: string): Promise<ResponseBody> => {
     const path = `/${this.hatenaId}/${this.blogId}/atom/entry/${id}`
+    return this.request({ method: 'GET', path })
+  }
+
+  allCategories = (): Promise<ResponseCategories> => {
+    const path = `/${this.hatenaId}/${this.blogId}/atom/category`
     return this.request({ method: 'GET', path })
   }
 
@@ -200,6 +222,7 @@ export default class Hatenablog {
       password: this.apiKey,
     })
     try {
+      console.log(`https://blog.hatena.ne.jp${path}`)
       const res = await axios({
         method,
         url: `https://blog.hatena.ne.jp${path}`,

@@ -76,6 +76,11 @@
           "description": "エントリの投稿・更新後にURLを開きます",
           "default": false
         },
+        "hatenablogger.askCategory": {
+          "type": "boolean",
+          "description": "エントリの投稿・更新時にカテゴリをAPIから取得して選択可能にします",
+          "default": false
+        },
         "hatenablogger.fotolifeFolder": {
           "type": "string",
           "default": "Hatena Blog",
@@ -157,6 +162,7 @@
   },
   "dependencies": {
     "axios": "0.21.1",
+    "dayjs": "1.10.5",
     "hatena-fotolife-api": "2.0.0",
     "open": "8.2.0",
     "wsse": "5.1.0",
