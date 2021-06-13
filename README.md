@@ -13,18 +13,20 @@ This VSCode extension helps you to manage entries on HatenaBlog and images on Ha
 
 ## オプション設定
 
-| プロパティ | 型     | 必須 | 説明                                                                              |
-| ---------- | ------ | ---- | --------------------------------------------------------------------------------- |
-| hatenaId   | 文字列 | ○    | Hatena ID                                                                         |
-| blogId     | 文字列 | ○    | [Blog ID](http://blog.hatena.ne.jp/my/config/detail) (デフォルトはブログドメイン) |
-| apiKey     | 文字列 | ○    | [API キー](http://blog.hatena.ne.jp/my/config/detail)                             |
+| プロパティ            | 型     | 必須 | 説明                                                                              |
+| --------------------- | ------ | ---- | --------------------------------------------------------------------------------- |
+| hatenaId              | 文字列 | ○    | Hatena ID                                                                         |
+| blogId                | 文字列 | ○    | [Blog ID](http://blog.hatena.ne.jp/my/config/detail) (デフォルトはブログドメイン) |
+| apiKey                | 文字列 | ○    | [API キー](http://blog.hatena.ne.jp/my/config/detail)                             |
+| askCategory           | 真偽値 |      | エントリの投稿・更新時にカテゴリを API から取得して選択可能にします               |
+| openAfterPostOrUpdate | 真偽値 |      | エントリの投稿・更新後に URL を開きます                                           |
 
 ![](./images/api-key.png)
 
-| プロパティ       | 型     | 必須 | 説明                                                         |
-| ---------------- | ------ | ---- | ------------------------------------------------------------ |
-| fotolifeFolder   | 文字列 |      | 画像をアップロードするフォルダを指定します                   |
-| alwaysAskCaption | 真偽値 |      | 画像をアップロードする際に、キャプションを追加するか尋ねます |
+| プロパティ     | 型     | 必須 | 説明                                                         |
+| -------------- | ------ | ---- | ------------------------------------------------------------ |
+| fotolifeFolder | 文字列 |      | 画像をアップロードするフォルダを指定します                   |
+| askCaption     | 真偽値 |      | 画像をアップロードする際に、キャプションを追加するか尋ねます |
 
 ## 機能
 
