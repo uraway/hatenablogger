@@ -5,7 +5,6 @@ import {
   WebDriver,
   InputBox,
   NotificationType,
-  TextEditor,
   EditorView,
 } from 'vscode-extension-tester'
 // import { DialogHandler } from 'vscode-extension-tester-native'
@@ -118,49 +117,45 @@ describe('UI Tests', () => {
       )
     })
 
-    //it('successfully uploads an image', async () => {
-    //  await openFile('post.md')
-    //  await new Workbench().executeCommand('Hatenablogger: Upload Image')
-    //
-    //  const dialog = await DialogHandler.getOpenDialog()
-    //  await dialog.selectPath(
-    //    `${process.cwd()}/src/ui-test/fixture/screenshot.png`
-    //  )
-    //  await dialog.confirm()
-    //
-    //  const loadingNotification = (await driver.wait(() => {
-    //    return notificationExists('Uploading image...')
-    //  }, 2000)) as Notification
-    //
-    //  expect(await loadingNotification.getMessage()).to.be('Uploading image...')
-    //  expect(await loadingNotification.getType()).equals(NotificationType.Info)
-    //
-    //  const titleInput = await InputBox.create()
-    //  expect(await titleInput.getPlaceHolder()).to.be('Title')
-    //  expect(await titleInput.getText()).to.be('screenshot.png')
-    //  expect(await titleInput.getMessage()).to.be(
-    //    "Please input title (Press 'Enter' to confirm or 'Escape' to cancel)"
-    //  )
-    //  await titleInput.confirm()
-    //
-    //  await driver.sleep(10000)
-    //
-    //  const notification = (await driver.wait(() => {
-    //    return notificationExists('Successfully image uploaded!')
-    //  }, 2000)) as Notification
-    //
-    //  expect(await notification.getMessage()).to.be(
-    //    'Successfully image uploaded!'
-    //  )
-    //  expect(await notification.getType()).equals(NotificationType.Info)
-    //
-    //  const editor = new TextEditor()
-    //  const hasChanges = await editor.isDirty()
-    //  const text = await editor.getText()
-    //
-    //  expect(hasChanges).to.equals(true)
-    //  expect(text).match(/!\[screenshot\.png]\(https:\/\/.*\)/)
-    //})
+    it('successfully uploads an image', async () => {
+      const fileName = 'blank.md'
+
+      await openFile(fileName)
+      await new Workbench().executeCommand('Hatenablogger: Upload Image')
+
+      const dialog = await InputBox.create()
+      await dialog.setText(`${process.cwd()}/src/ui-test/fixture/screenshot.png`)
+      await dialog.confirm()
+
+      const titleInput = await InputBox.create()
+      expect(await titleInput.getPlaceHolder()).to.be.equal('Title')
+      expect(await titleInput.getText()).to.be.equal('screenshot.png')
+      expect(await titleInput.getMessage()).to.be.equal(
+        "Please input title (Press 'Enter' to confirm or 'Escape' to cancel)"
+      )
+      await titleInput.confirm()
+
+      const loadingNotification = (await driver.wait(() => {
+        return notificationExists('Uploading image...')
+      }, 2000)) as Notification
+
+      expect(await loadingNotification.getMessage()).to.be.equal('Uploading image...')
+      expect(await loadingNotification.getType()).equals(NotificationType.Info)
+
+      await driver.sleep(10000)
+
+      const notification = (await driver.wait(() => {
+        return notificationExists('Successfully image uploaded!')
+      }, 10000)) as Notification
+
+      expect(await notification.getMessage()).to.be.equal('Successfully image uploaded!')
+      expect(await notification.getType()).equals(NotificationType.Info)
+
+      const editor = await new EditorView().openEditor(fileName)
+      const text = await editor.getText()
+
+      expect(text).match(/!\[screenshot\.png]\(https:\/\/.*\)/)
+    })
   })
 })
 
@@ -170,20 +165,18 @@ const openFile = async (filename: string) => {
   await prompt.confirm()
 }
 
-const setConfiguration = async ({
-  hatenaId,
-  blogId,
-  apiKey,
-}: {
-  hatenaId?: string
-  blogId?: string
-  apiKey?: string
-}) => {
+const setConfiguration = async ({ hatenaId, blogId, apiKey }: { hatenaId: string; blogId: string; apiKey: string }) => {
   const settingsEditor = await new Workbench().openSettings()
 
-  hatenaId && (await (await settingsEditor.findSetting('Hatena ID', 'Hatenablogger')).setValue(hatenaId))
-  blogId && (await (await settingsEditor.findSetting('Blog ID', 'Hatenablogger')).setValue(blogId))
-  apiKey && (await (await settingsEditor.findSetting('Api Key', 'Hatenablogger')).setValue(apiKey))
+  const valueMap = {
+    'Hatena ID': hatenaId,
+    'Blog ID': blogId,
+    'Api Key': apiKey,
+  }
+  for (const [key, value] of Object.entries(valueMap)) {
+    const setting = await settingsEditor.findSetting(key, 'Hatenablogger')
+    await setting.setValue(value)
+  }
 }
 
 async function notificationExists(text: string): Promise<Notification | undefined> {
