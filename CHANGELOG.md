@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.6.0]
+
+- dumpAllEntries: エントリをすべてダンプする
+- エントリの投稿・更新時にカテゴリを API から取得して選択可能するオプション (`askCategory`)
+- エントリの投稿・更新後に URL を開くオプション (`openAfterPostOrUpdate`)
+
 ## [0.5.0]
 
 - エントリの投稿・更新時に更新日時(Updated at)を尋ねる

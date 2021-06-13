@@ -50,7 +50,7 @@ type RequestBody = {
   }
 }
 
-type ResponseBody = {
+export type ResponseBody = {
   entry: {
     id: {
       _: string
@@ -86,6 +86,36 @@ type ResponseBody = {
   }
 }
 
+type Links =
+  | [{ $: { href: string; rel: 'first' } }]
+  | [{ $: { href: string; rel: 'first' } }, { $: { href: string; rel: 'next' } }]
+
+type ListResponse = {
+  feed: {
+    link: Links
+    entry: ResponseBody['entry'][]
+  }
+}
+
+type ResponseCategories = {
+  'app:categories': {
+    'atom:category':
+      | {
+          $: {
+            term: string
+          }
+        }
+      | {
+          $: {
+            term: string
+          }
+        }[]
+  }
+}
+
+/** Cache storage */
+let results: ListResponse['feed']['entry'] = []
+
 export default class Hatenablog {
   private hatenaId: string
   private blogId: string
@@ -99,12 +129,47 @@ export default class Hatenablog {
   }
 
   postOrUpdate = (options: Option): Promise<ResponseBody> => {
-    return 'id' in options ? this.update(options) : this.post(options)
+    return 'id' in options && options.id ? this.update(options) : this.post(options)
   }
 
   getEntry = (id: string): Promise<ResponseBody> => {
     const path = `/${this.hatenaId}/${this.blogId}/atom/entry/${id}`
     return this.request({ method: 'GET', path })
+  }
+
+  allCategories = (): Promise<ResponseCategories> => {
+    const path = `/${this.hatenaId}/${this.blogId}/atom/category`
+    return this.request({ method: 'GET', path })
+  }
+
+  listEntry = (page?: string): Promise<ListResponse> => {
+    let path = `/${this.hatenaId}/${this.blogId}/atom/entry`
+
+    if (page) {
+      path = path + `?page=${page}`
+    }
+
+    return this.request({ method: 'GET', path })
+  }
+
+  allEntries = async (discardCache = false): Promise<ListResponse['feed']['entry']> => {
+    /** Cache hit */
+    if (results.length > 0 && !discardCache) return results
+
+    /** Clear cache */
+    results = []
+    let page: string | undefined
+    while (true) {
+      const res = await this.listEntry(page)
+      results = [...results, ...res.feed.entry]
+
+      const nextLink = res.feed.link.find((l) => l.$.rel === 'next')
+      const newPage = nextLink?.$.href.match(/\page=(.*)/)?.[1]
+      if (!newPage || newPage === page) break
+      page = newPage
+    }
+
+    return results
   }
 
   private createBody = (options: Option): RequestBody => {
@@ -150,13 +215,14 @@ export default class Hatenablog {
     return this.request({ method: 'PUT', path, body })
   }
 
-  private request = async (options: { method: Method; path: string; body?: RequestBody }): Promise<ResponseBody> => {
+  private request = async <T>(options: { method: Method; path: string; body?: RequestBody }): Promise<T> => {
     const { method, path, body } = options
     const token = wsse({
       username: this.hatenaId,
       password: this.apiKey,
     })
     try {
+      console.log(`https://blog.hatena.ne.jp${path}`)
       const res = await axios({
         method,
         url: `https://blog.hatena.ne.jp${path}`,
@@ -167,7 +233,7 @@ export default class Hatenablog {
           'X-WSSE': token.getWSSEHeader(),
         },
       })
-      return this.toJson<ResponseBody>(res.data)
+      return this.toJson<T>(res.data)
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         throw err?.response?.data

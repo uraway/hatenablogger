@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/uraway/hatenablogger/issues"
   },
-  "version": "0.5.0",
+  "version": "0.6.0",
   "engines": {
     "vscode": "^1.40.0"
   },
@@ -29,7 +29,8 @@
   "activationEvents": [
     "onCommand:extension.postOrUpdate",
     "onCommand:extension.uploadImage",
-    "onCommand:extension.retrieveEntry"
+    "onCommand:extension.retrieveEntry",
+    "onCommand:extension.dumpAllEntries"
   ],
   "main": "./out/main.js",
   "contributes": {
@@ -47,6 +48,11 @@
       {
         "command": "extension.retrieveEntry",
         "title": "Retrieve Entry",
+        "category": "Hatenablogger"
+      },
+      {
+        "command": "extension.dumpAllEntries",
+        "title": "Dump All Entries",
         "category": "Hatenablogger"
       }
     ],
@@ -70,12 +76,17 @@
           "description": "エントリの投稿・更新後にURLを開きます",
           "default": false
         },
+        "hatenablogger.askCategory": {
+          "type": "boolean",
+          "description": "エントリの投稿・更新時にカテゴリをAPIから取得して選択可能にします",
+          "default": false
+        },
         "hatenablogger.fotolifeFolder": {
           "type": "string",
           "default": "Hatena Blog",
           "description": "画像をアップロードするフォルダを指定します"
         },
-        "hatenablogger.alwaysAskCaption": {
+        "hatenablogger.askCaption": {
           "type": "boolean",
           "default": "Hatena Blog",
           "description": "画像をアップロードする際に、キャプションを追加するか尋ねます"
@@ -151,8 +162,9 @@
   },
   "dependencies": {
     "axios": "0.21.1",
+    "dayjs": "1.10.5",
     "hatena-fotolife-api": "2.0.0",
-    "open": "^8.2.0",
+    "open": "8.2.0",
     "wsse": "5.1.0",
     "xml2js": "0.4.23"
   }
