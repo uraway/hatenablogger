@@ -155,7 +155,7 @@ async function postOrUpdate() {
      * unless, use now as default value
      */
     const now = dayjs().format()
-    let inputUpdated = await vscode.window.showInputBox({
+    const inputUpdated = await vscode.window.showInputBox({
       placeHolder: now,
       prompt: 'Please input `updated at`',
       value: previousContext?.updated ?? now,
