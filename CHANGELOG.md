@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.7.0]
+
+- replaceContentInAllEntries: 正規表現でエントリを検索し、そのワードを置換して更新します
+
 ## [0.6.0]
 
 - dumpAllEntries: エントリをすべてダンプする

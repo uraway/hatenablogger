@@ -1,11 +1,9 @@
 [![](https://vsmarketplacebadge.apphb.com/version-short/uraway.hatenablogger.svg)](https://marketplace.visualstudio.com/items?itemName=uraway.hatenablogger)
 [![](https://vsmarketplacebadge.apphb.com/downloads-short/uraway.hatenablogger.svg)](https://marketplace.visualstudio.com/items?itemName=uraway.hatenablogger)
-
-# hatenablogger
-
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
 [![<uraway>](https://circleci.com/gh/uraway/hatenablogger.svg?style=svg)](https://circleci.com/gh/uraway/hatenablogger)
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
+# hatenablogger
 
 This VSCode extension helps you to manage entries on HatenaBlog and images on HatenaFotolife.
 
@@ -23,12 +21,17 @@ This VSCode extension helps you to manage entries on HatenaBlog and images on Ha
 
 ![](./images/api-key.png)
 
-| プロパティ     | 型     | 必須 | 説明                                                         |
-| -------------- | ------ | ---- | ------------------------------------------------------------ |
-| fotolifeFolder | 文字列 |      | 画像をアップロードするフォルダを指定します                   |
-| askCaption     | 真偽値 |      | 画像をアップロードする際に、キャプションを追加するか尋ねます |
+| プロパティ             | 型     | 必須 | 説明                                                                                           |
+| ---------------------- | ------ | ---- | ---------------------------------------------------------------------------------------------- |
+| allowedImageExtensions | 配列   | ○    | アップロード可能なファイルの拡張子を指定します。デフォルト: `["png","jpg","jpeg","gif","bmp"]` |
+| fotolifeFolder         | 文字列 |      | 画像をアップロードするフォルダを指定します                                                     |
+| askCaption             | 真偽値 |      | 画像をアップロードする際に、キャプションを追加するか尋ねます                                   |
 
 ## 機能
+
+### エントリのダンプ: `Hatenablogger: Dump All Entries`
+
+エントリをすべて取得し、指定したフォルダにダンプします
 
 ### エントリの投稿: `Hatenablogger: Post or Update`
 
@@ -47,6 +50,10 @@ This VSCode extension helps you to manage entries on HatenaBlog and images on Ha
 マークダウンファイル内にコンテキストコメントが存在する場合は、エントリを取得し、マークダウンファイルとコンテキストコメントを同期します
 
 ![retrieve-entry](./images/retrieve-entry.gif)
+
+### エントリの置換: `Hatenablogger: Replace Content In All Entries`
+
+正規表現でエントリを検索し、そのワードを置換して更新します
 
 ### イメージのアップロード: `Hatenablogger: Upload Image`
 
