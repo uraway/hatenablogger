@@ -209,7 +209,7 @@ async function postOrUpdate() {
     })
     saveContext(context)
 
-    vscode.window.showInformationMessage(`Successfully ${context ? 'updated' : 'posted'} at ${entryURL}`)
+    vscode.window.showInformationMessage(`Successfully ${previousContext?.id ? 'updated' : 'posted'} at ${entryURL}`)
 
     if (openAfterPostOrUpdate) {
       await open(entryURL)

@@ -6,6 +6,7 @@ import {
   InputBox,
   NotificationType,
   TextEditor,
+  EditorView,
 } from 'vscode-extension-tester'
 // import { DialogHandler } from 'vscode-extension-tester-native'
 import { expect } from 'chai'
@@ -33,7 +34,9 @@ describe('UI Tests', () => {
 
   describe('Hatenablogger: Post or Update Command', () => {
     it('succssfully posts', async () => {
-      await openFile('post.md')
+      const fileName = 'post.md'
+
+      await openFile(fileName)
       await new Workbench().executeCommand('Hatenablogger: Post or Update')
 
       await inputPostEntryFieldsWithTests({
@@ -44,19 +47,18 @@ describe('UI Tests', () => {
 
       const notification = (await driver.wait(() => {
         return notificationExists('Successfully posted')
-      }, 2000)) as Notification
+      }, 10000)) as Notification
 
       const message = await notification.getMessage()
       console.log(message)
       expect(message).match(/Successfully posted at/)
       expect(await notification.getType()).equals(NotificationType.Info)
-      const editor = new TextEditor()
-      const hasChanges = await editor.isDirty()
+
+      const editor = await new EditorView().openEditor(fileName)
       const text = await driver.wait(() => {
         return editor.getText()
       }, 2000)
 
-      expect(hasChanges).to.equals(true)
       console.log(text)
       expect(text).match(
         /^<!--\n{"id":"\d*","title":"new entry","categories":\["category1","カテゴリー2"\],"updated":".*","edited":".*","draft":"yes"}\n-->\n/
@@ -64,7 +66,9 @@ describe('UI Tests', () => {
     })
 
     it('successfully updates', async () => {
-      await openFile('update.md')
+      const fileName = 'update.md'
+
+      await openFile(fileName)
       await new Workbench().executeCommand('Hatenablogger: Post or Update')
 
       await inputPostEntryFieldsWithTests({
@@ -75,13 +79,14 @@ describe('UI Tests', () => {
 
       const notification = (await driver.wait(() => {
         return notificationExists('Successfully updated')
-      }, 2000)) as Notification
+      }, 30000)) as Notification
 
       const message = await notification.getMessage()
       console.log(message)
       expect(message).match(/Successfully updated at/)
       expect(await notification.getType()).equals(NotificationType.Info)
-      const editor = new TextEditor()
+
+      const editor = await new EditorView().openEditor(fileName)
       const text = await driver.wait(() => {
         return editor.getText()
       }, 2000)
@@ -92,22 +97,24 @@ describe('UI Tests', () => {
     })
 
     it('successfully retrieves entry', async () => {
-      await openFile('retrieve.md')
+      const fileName = 'retrieve.md'
+      await openFile(fileName)
       await new Workbench().executeCommand('Hatenablogger: Retrieve Entry')
 
       const notification = (await driver.wait(() => {
         return notificationExists('Successfully retrieved')
-      }, 2000)) as Notification
+      }, 30000)) as Notification
       const message = await notification.getMessage()
       console.log(message)
       expect(message).match(/Successfully retrieved Entry content/)
       expect(await notification.getType()).equals(NotificationType.Info)
-      const editor = new TextEditor()
+
+      const editor = await new EditorView().openEditor(fileName)
       const text = await driver.wait(() => {
         return editor.getText()
       }, 2000)
       expect(text).match(
-        /^<!--\n{"id":"26006613774708000","title":"retrieved entry title","categories":\["category1","カテゴリー2"\],"updated":"2021-06-12T12:00:00\+09:00","edited":".*","draft":"yes"}\n-->\n\nretrieved entry body/
+        /^<!--\n{"id":"26006613774708000","title":"retrieved entry title","categories":\["category1","カテゴリー2"\],"updated":"2021-06-12T12:00:00\+09:00","edited":".*","draft":"no"}\n-->\n\nretrieved entry body/
       )
     })
 
