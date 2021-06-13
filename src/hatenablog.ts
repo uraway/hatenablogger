@@ -50,7 +50,7 @@ type RequestBody = {
   }
 }
 
-type ResponseBody = {
+export type ResponseBody = {
   entry: {
     id: {
       _: string
@@ -134,6 +134,8 @@ export default class Hatenablog {
     /** Cache hit */
     if (results.length > 0 && !discardCache) return results
 
+    /** Clear cache */
+    results = []
     let page: string | undefined
     while (true) {
       const res = await this.listEntry(page)

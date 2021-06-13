@@ -7,3 +7,4 @@ test-resources/
 .envrc
 logs/
 images/icon.png
+src/ui-test/tmp

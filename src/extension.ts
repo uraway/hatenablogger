@@ -2,10 +2,11 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
-import Hatenablog from './hatenablog'
+import Hatenablog, { ResponseBody } from './hatenablog'
 import Hatenafotolife from './hatenafotolife'
 import { basename } from 'path'
 import open from 'open'
+import * as fs from 'fs'
 
 const contextCommentRegExp = /^<!--([\s\S]*?)-->\n\n?/
 const IDRegExp = /^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/
@@ -35,6 +36,7 @@ export function activate(context: vscode.ExtensionContext): void {
   disposables.push(vscode.commands.registerCommand('extension.postOrUpdate', postOrUpdate))
   disposables.push(vscode.commands.registerCommand('extension.uploadImage', uploadImage))
   disposables.push(vscode.commands.registerCommand('extension.retrieveEntry', retrieveEntry))
+  disposables.push(vscode.commands.registerCommand('extension.dumpAllEntries', dumpAllEntries))
 
   context.subscriptions.concat(disposables)
 }
@@ -42,6 +44,38 @@ export function activate(context: vscode.ExtensionContext): void {
 // this method is called when your extension is deactivated
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export function deactivate(): void {}
+
+async function dumpAllEntries() {
+  try {
+    const dirPath = await vscode.window.showOpenDialog({
+      canSelectFiles: false,
+      canSelectFolders: true,
+      canSelectMany: false,
+    })
+
+    const entries = await hatenablog.allEntries(/** Discard cache */ true)
+    const isConfirmed = await vscode.window.showInformationMessage(
+      `${entries.length} entries were Found. Dump all entries into md files?`,
+      'OK',
+      'Cancel'
+    )
+    if (!dirPath?.[0] || isConfirmed !== 'OK') {
+      showErrorMessage('Abort dump process.')
+      return
+    }
+    for (const entry of entries) {
+      const id = getId(entry)
+      const filePath = `${dirPath?.[0].path}/${entry.updated._}-${id}-${encodeURIComponent(entry.title._)}.md`
+
+      const context = createContext(entry, { id })
+      const content = `\n\n${entry.content._}` ?? ''
+      const data = `<!--\n${JSON.stringify(context)}\n-->${content}`
+      fs.writeFileSync(filePath, data)
+    }
+  } catch (err) {
+    showErrorMessage(err)
+  }
+}
 
 async function retrieveEntry() {
   const id = getContext()?.id ?? (await pickEntryId())
@@ -54,24 +88,12 @@ async function retrieveEntry() {
     const res = await hatenablog.getEntry(id)
     const content = res.entry.content._
 
-    saveContext(
-      {
-        id,
-        title: res.entry.title._,
-        categories: Array.isArray(res.entry.category)
-          ? res.entry.category.map((c) => c.$.term)
-          : [res.entry.category.$.term],
-        updated: res.entry.updated._,
-        edited: res.entry['app:edited']._,
-        draft: res.entry['app:control']['app:draft']._,
-      },
-      content
-    )
+    const context = createContext(res.entry, { id })
+    saveContext(context, content)
 
     vscode.window.showInformationMessage(`Successfully retrieved Entry content (ID: ${id})`)
   } catch (err) {
-    console.error(err)
-    showErrorMessage(String(err))
+    showErrorMessage(err)
   }
 }
 
@@ -86,13 +108,10 @@ async function postOrUpdate() {
   const content = textEditor.document.getText()
   const context = getContext()
 
-  const titleValue = context?.title ?? ''
-  const categoriesValue = context?.categories.toString() ?? ''
-
   const inputTitle = await vscode.window.showInputBox({
     placeHolder: 'Entry title',
     prompt: 'Please input an entry title',
-    value: titleValue,
+    value: context?.title ?? '',
   })
 
   if (!inputTitle) {
@@ -103,7 +122,7 @@ async function postOrUpdate() {
   const inputCategories = await vscode.window.showInputBox({
     placeHolder: 'Categories',
     prompt: 'Please input categories. (Comma deliminated)',
-    value: categoriesValue,
+    value: context?.categories.toString() ?? '',
   })
 
   if (inputCategories === undefined) {
@@ -148,8 +167,8 @@ async function postOrUpdate() {
   }
 
   try {
-    const res = await hatenablog.postOrUpdate(options)
-    const id = res.entry.id._.match(IDRegExp)?.[1]
+    const { entry } = await hatenablog.postOrUpdate(options)
+    const id = getId(entry)
 
     const { hatenaId, blogId, openAfterPostOrUpdate } = getConfiguration()
 
@@ -157,16 +176,14 @@ async function postOrUpdate() {
       throw new Error('ID not retrieved.')
     }
     const entryURL =
-      draft !== 'yes' ? res.entry.link[1].$.href : `http://blog.hatena.ne.jp/${hatenaId}/${blogId}/edit?entry=${id}`
+      draft !== 'yes' ? entry.link[1].$.href : `http://blog.hatena.ne.jp/${hatenaId}/${blogId}/edit?entry=${id}`
 
-    saveContext({
+    const context = createContext(entry, {
       id,
-      title: res.entry.title._,
       categories,
-      updated: res.entry.updated._,
-      edited: res.entry['app:edited']._,
       draft,
     })
+    saveContext(context)
 
     vscode.window.showInformationMessage(`Successfully ${context ? 'updated' : 'posted'} at ${entryURL}`)
 
@@ -174,8 +191,7 @@ async function postOrUpdate() {
       await open(entryURL)
     }
   } catch (err: unknown) {
-    console.error(err)
-    showErrorMessage(String(err))
+    showErrorMessage(err)
   }
 }
 
@@ -216,7 +232,7 @@ async function uploadImage() {
   if (!uri) {
     return
   }
-  const file = uri[0]
+  const { fsPath } = uri[0]
   const textEditor = vscode.window.activeTextEditor
 
   if (textEditor && textEditor.selection.isEmpty) {
@@ -225,9 +241,9 @@ async function uploadImage() {
     let title = await vscode.window.showInputBox({
       placeHolder: 'Title',
       prompt: 'Please input title',
-      value: basename(file.fsPath),
+      value: basename(fsPath),
     })
-    title = title ?? basename(file.fsPath)
+    title = title ?? basename(fsPath)
 
     const { alwaysAskCaption } = getConfiguration()
     let caption: string | undefined
@@ -243,13 +259,20 @@ async function uploadImage() {
       vscode.window.showInformationMessage('Uploading image...')
 
       const res = await hatenafotolife.upload({
-        file: file.fsPath,
+        file: fsPath,
         title,
       })
 
       const imageurl = res.entry['hatena:imageurl']._
+
+      /**
+       * デフォルトURL
+       */
       let markdown = `![${title}](${imageurl})`
 
+      /**
+       * キャプション付きのURL
+       */
       if (caption) {
         markdown = `<figure class="figure-image figure-image-fotolife" title="${caption}">
 
@@ -262,14 +285,27 @@ ${markdown}
       textEditor.edit((edit) => edit.insert(position, markdown))
       vscode.window.showInformationMessage('Successfully image uploaded!')
     } catch (err) {
-      console.error(err)
-      showErrorMessage(String(err))
+      showErrorMessage(err)
     }
   }
 }
 
-async function showErrorMessage(text: string) {
-  await vscode.window.showErrorMessage(`HatenaBlogger was canceled. ${text}`)
+async function showErrorMessage(err: unknown) {
+  console.error(err)
+  await vscode.window.showErrorMessage(`HatenaBlogger was canceled. ${String(err)}`)
+}
+
+function createContext(entry: ResponseBody['entry'], context?: Partial<Context>): Context {
+  const id = getId(entry)
+  return {
+    id,
+    title: entry.title._,
+    categories: Array.isArray(entry.category) ? entry.category.map((c) => c.$.term) : [entry.category.$.term],
+    updated: entry.updated._,
+    edited: entry['app:edited']._,
+    draft: entry['app:control']['app:draft']._,
+    ...context,
+  }
 }
 
 function getContext() {
@@ -304,7 +340,7 @@ async function pickEntryId() {
         },
         ...entries.map((entry) => ({
           label: entry.title._,
-          detail: entry.id._.match(IDRegExp)?.[1] ?? 'ID Not Found',
+          detail: getId(entry),
         })),
       ]
     }
@@ -338,4 +374,8 @@ function getConfiguration(): {
     openAfterPostOrUpdate,
     alwaysAskCaption,
   }
+}
+
+function getId(entry: ResponseBody['entry']) {
+  return entry.id._.match(IDRegExp)?.[1] ?? 'ID Not Found'
 }
