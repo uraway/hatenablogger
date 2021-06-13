@@ -8,6 +8,7 @@ import { basename } from 'path'
 import open from 'open'
 
 const contextCommentRegExp = /^<!--([\s\S]*?)-->\n\n?/
+const IDRegExp = /^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/
 type Context = {
   id: string
   title: string
@@ -17,12 +18,16 @@ type Context = {
   edited: string
 }
 
+const hatenablog = new Hatenablog()
+const hatenafotolife = new Hatenafotolife()
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext): void {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "hatenablogger" is now active!')
+
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with  registerCommand
   // The commandId parameter must match the command field in package.json
@@ -39,15 +44,7 @@ export function activate(context: vscode.ExtensionContext): void {
 export function deactivate(): void {}
 
 async function retrieveEntry() {
-  const hatenablog = new Hatenablog()
-  const textEditor = vscode.window.activeTextEditor
-  if (!textEditor) {
-    console.error('TextEditor not found')
-    return
-  }
-  const content = textEditor.document.getText()
-  const context = parseContext(content)
-  const id = context?.id
+  const id = getContext()?.id ?? (await pickEntryId())
   if (!id) {
     showErrorMessage('ID is required in context.')
     return
@@ -87,7 +84,7 @@ async function postOrUpdate() {
     return
   }
   const content = textEditor.document.getText()
-  const context = parseContext(content)
+  const context = getContext()
 
   const titleValue = context?.title ?? ''
   const categoriesValue = context?.categories.toString() ?? ''
@@ -152,9 +149,9 @@ async function postOrUpdate() {
 
   try {
     const res = await hatenablog.postOrUpdate(options)
-    const id = res.entry.id._.match(/^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/)?.[1]
+    const id = res.entry.id._.match(IDRegExp)?.[1]
 
-    const { hatenaId, blogId, openAfterPostOrUpdate } = vscode.workspace.getConfiguration('hatenablogger')
+    const { hatenaId, blogId, openAfterPostOrUpdate } = getConfiguration()
 
     if (!id) {
       throw new Error('ID not retrieved.')
@@ -209,9 +206,7 @@ function removeContextComment(content: string) {
 }
 
 async function uploadImage() {
-  const hatenafotolife = new Hatenafotolife()
-
-  const { allowedImageExtensions } = vscode.workspace.getConfiguration('hatenablogger')
+  const { allowedImageExtensions } = getConfiguration()
 
   const uri = await vscode.window.showOpenDialog({
     filters: {
@@ -234,7 +229,7 @@ async function uploadImage() {
     })
     title = title ?? basename(file.fsPath)
 
-    const { alwaysAskCaption } = vscode.workspace.getConfiguration('hatenablogger')
+    const { alwaysAskCaption } = getConfiguration()
     let caption: string | undefined
     if (alwaysAskCaption) {
       caption = await vscode.window.showInputBox({
@@ -275,4 +270,72 @@ ${markdown}
 
 async function showErrorMessage(text: string) {
   await vscode.window.showErrorMessage(`HatenaBlogger was canceled. ${text}`)
+}
+
+function getContext() {
+  const textEditor = vscode.window.activeTextEditor
+  if (!textEditor) {
+    console.error('TextEditor not found')
+    return
+  }
+
+  const content = textEditor.document.getText()
+  return parseContext(content)
+}
+
+async function pickEntryId() {
+  const SYNC = 'Sync $(sync)'
+  let input:
+    | undefined
+    | null
+    | {
+        label: string
+        detail: string
+      } = null
+
+  while (input === null || input?.label === SYNC) {
+    const getItems = async () => {
+      const discardCache = input?.label === SYNC
+      const entries = await hatenablog.allEntries(discardCache)
+      return [
+        {
+          label: SYNC,
+          detail: 'Discard cache',
+        },
+        ...entries.map((entry) => ({
+          label: entry.title._,
+          detail: entry.id._.match(IDRegExp)?.[1] ?? 'ID Not Found',
+        })),
+      ]
+    }
+    input = await vscode.window.showQuickPick(getItems())
+  }
+
+  return input?.detail
+}
+
+function getConfiguration(): {
+  hatenaId: string
+  blogId: string
+  apiKey: string
+  allowedImageExtensions: string[]
+  openAfterPostOrUpdate: boolean
+  alwaysAskCaption: boolean
+} {
+  const {
+    hatenaId,
+    blogId,
+    apiKey,
+    allowedImageExtensions,
+    openAfterPostOrUpdate,
+    alwaysAskCaption,
+  } = vscode.workspace.getConfiguration('hatenablogger')
+  return {
+    hatenaId,
+    blogId,
+    apiKey,
+    allowedImageExtensions,
+    openAfterPostOrUpdate,
+    alwaysAskCaption,
+  }
 }
