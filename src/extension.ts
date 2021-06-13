@@ -322,6 +322,7 @@ function getContext() {
 
 async function pickEntryId() {
   const SYNC = 'Sync $(sync)'
+  const LOAD_MORE = 'Load more $(arrow-down)'
   let input:
     | undefined
     | null
@@ -330,20 +331,39 @@ async function pickEntryId() {
         detail: string
       } = null
 
-  while (input === null || input?.label === SYNC) {
+  while (input === null || input?.label === SYNC || input?.label === LOAD_MORE) {
     const getItems = async () => {
       const discardCache = input?.label === SYNC
-      const entries = await hatenablog.allEntries(discardCache)
-      return [
+      const loadMore = input?.label === LOAD_MORE
+
+      let options = [
         {
           label: SYNC,
           detail: 'Discard cache',
         },
-        ...entries.map((entry) => ({
-          label: entry.title._,
-          detail: getId(entry),
-        })),
       ]
+      if (loadMore || discardCache) {
+        const entries = await hatenablog.allEntries(discardCache)
+        options = [
+          ...entries.map((entry) => ({
+            label: entry.title._,
+            detail: getId(entry),
+          })),
+        ]
+      } else {
+        const entries = (await hatenablog.listEntry())['feed']['entry']
+        options = [
+          ...entries.map((entry) => ({
+            label: entry.title._,
+            detail: getId(entry),
+          })),
+          {
+            label: LOAD_MORE,
+            detail: '',
+          },
+        ]
+      }
+      return options
     }
     input = await vscode.window.showQuickPick(getItems())
   }
@@ -359,8 +379,14 @@ function getConfiguration(): {
   openAfterPostOrUpdate: boolean
   alwaysAskCaption: boolean
 } {
-  const { hatenaId, blogId, apiKey, allowedImageExtensions, openAfterPostOrUpdate, alwaysAskCaption } =
-    vscode.workspace.getConfiguration('hatenablogger')
+  const {
+    hatenaId,
+    blogId,
+    apiKey,
+    allowedImageExtensions,
+    openAfterPostOrUpdate,
+    alwaysAskCaption,
+  } = vscode.workspace.getConfiguration('hatenablogger')
   return {
     hatenaId,
     blogId,

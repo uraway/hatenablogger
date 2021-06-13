@@ -1,3 +1,6 @@
+[![](https://vsmarketplacebadge.apphb.com/version-short/uraway.hatenablogger.svg)](https://marketplace.visualstudio.com/items?itemName=uraway.hatenablogger)
+[![](https://vsmarketplacebadge.apphb.com/downloads-short/uraway.hatenablogger.svg)](https://marketplace.visualstudio.com/items?itemName=uraway.hatenablogger)
+
 # hatenablogger
 
 [![<uraway>](https://circleci.com/gh/uraway/hatenablogger.svg?style=svg)](https://circleci.com/gh/uraway/hatenablogger)
