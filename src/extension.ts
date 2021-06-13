@@ -8,8 +8,9 @@ import { basename } from 'path'
 import open from 'open'
 import * as fs from 'fs'
 
-const contextCommentRegExp = /^<!--([\s\S]*?)-->\n\n?/
-const IDRegExp = /^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/
+const CONTEXT_COMMENT_RegExp = /^<!--([\s\S]*?)-->\n\n?/
+const ID_RegExp = /^tag:[^:]+:[^-]+-[^-]+-\d+-(\d+)$/
+const DATE_RegExp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{2}:\d{2}$/
 type Context = {
   id: string
   title: string
@@ -135,6 +136,12 @@ async function postOrUpdate() {
       placeHolder: now,
       prompt: 'Please input `updated at`',
       value: previousContext?.updated ?? now,
+      validateInput: (text: string) => {
+        if (DATE_RegExp.test(text)) {
+          return undefined
+        }
+        return 'Invaild format'
+      },
     })
     if (!inputUpdated) {
       inputUpdated = now
@@ -204,7 +211,7 @@ function saveContext(context: Context, content?: string) {
 }
 
 function parseContext(content: string): null | Context {
-  const comment = content.match(contextCommentRegExp)
+  const comment = content.match(CONTEXT_COMMENT_RegExp)
   if (comment) {
     return JSON.parse(comment[1])
   }
@@ -212,7 +219,7 @@ function parseContext(content: string): null | Context {
 }
 
 function removeContextComment(content: string) {
-  return content.replace(contextCommentRegExp, '')
+  return content.replace(CONTEXT_COMMENT_RegExp, '')
 }
 
 async function uploadImage() {
@@ -371,5 +378,5 @@ function getConfiguration(): {
 }
 
 function getId(entry: ResponseBody['entry']) {
-  return entry.id._.match(IDRegExp)?.[1] ?? 'ID Not Found'
+  return entry.id._.match(ID_RegExp)?.[1] ?? 'ID Not Found'
 }
