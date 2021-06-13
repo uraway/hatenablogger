@@ -269,9 +269,9 @@ async function uploadImage() {
     })
     title = title ?? basename(fsPath)
 
-    const { alwaysAskCaption } = getConfiguration()
+    const { askCaption } = getConfiguration()
     let caption: string | undefined
-    if (alwaysAskCaption) {
+    if (askCaption) {
       caption = await vscode.window.showInputBox({
         placeHolder: 'Caption',
         prompt: 'Please input caption if needed',
@@ -400,10 +400,10 @@ function getConfiguration(): {
   apiKey: string
   allowedImageExtensions: string[]
   openAfterPostOrUpdate: boolean
-  alwaysAskCaption: boolean
+  askCaption: boolean
   askCategory: boolean
 } {
-  const { hatenaId, blogId, apiKey, allowedImageExtensions, openAfterPostOrUpdate, alwaysAskCaption, askCategory } =
+  const { hatenaId, blogId, apiKey, allowedImageExtensions, openAfterPostOrUpdate, askCaption, askCategory } =
     vscode.workspace.getConfiguration('hatenablogger')
   return {
     hatenaId,
@@ -411,7 +411,7 @@ function getConfiguration(): {
     apiKey,
     allowedImageExtensions,
     openAfterPostOrUpdate,
-    alwaysAskCaption,
+    askCaption,
     askCategory,
   }
 }
