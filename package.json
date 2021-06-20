@@ -170,7 +170,7 @@
     "axios": "0.21.1",
     "dayjs": "1.10.5",
     "hatena-fotolife-api": "2.0.0",
-    "open": "8.2.0",
+    "open": "8.2.1",
     "wsse": "5.1.0",
     "xml2js": "0.4.23"
   }
