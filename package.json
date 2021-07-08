@@ -140,7 +140,7 @@
   "devDependencies": {
     "@nut-tree/nut-js": "1.6.0",
     "@types/axios": "0.14.0",
-    "@types/chai": "4.2.20",
+    "@types/chai": "4.2.21",
     "@types/fs-extra": "9.0.12",
     "@types/glob": "7.1.4",
     "@types/mocha": "8.2.3",
