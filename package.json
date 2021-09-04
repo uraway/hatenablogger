@@ -167,7 +167,7 @@
     "vscode-test": "1.5.2"
   },
   "dependencies": {
-    "axios": "0.21.1",
+    "axios": "0.21.3",
     "dayjs": "1.10.6",
     "hatena-fotolife-api": "2.0.0",
     "open": "8.2.1",
