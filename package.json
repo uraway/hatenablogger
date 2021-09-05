@@ -154,7 +154,7 @@
     "chai": "4.3.4",
     "clipboardy": "2.3.0",
     "cross-env": "7.0.3",
-    "esbuild": "0.12.15",
+    "esbuild": "0.12.25",
     "eslint": "7.32.0",
     "fs-extra": "10.0.0",
     "glob": "7.1.7",
