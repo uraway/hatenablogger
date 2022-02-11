@@ -141,7 +141,7 @@
     "@nut-tree/nut-js": "1.7.0",
     "@types/axios": "0.14.0",
     "@types/chai": "4.2.21",
-    "@types/fs-extra": "9.0.12",
+    "@types/fs-extra": "9.0.13",
     "@types/glob": "7.1.4",
     "@types/mocha": "9.0.0",
     "@types/node": "14.17.32",
