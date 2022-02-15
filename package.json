@@ -138,7 +138,7 @@
     "ui-test": "yarn compile && extest setup-and-run out/ui-test/*.js -o settings.json -u --mocha_config src/ui-test/.mocharc-debug.js --install_dependencies "
   },
   "devDependencies": {
-    "@nut-tree/nut-js": "1.7.0",
+    "@nut-tree/nut-js": "2.0.1",
     "@types/axios": "0.14.0",
     "@types/chai": "4.3.0",
     "@types/fs-extra": "9.0.13",
