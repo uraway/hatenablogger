@@ -152,7 +152,7 @@
     "@typescript-eslint/parser": "5.14.0",
     "all-contributors-cli": "6.20.0",
     "chai": "4.3.6",
-    "clipboardy": "2.3.0",
+    "clipboardy": "3.0.0",
     "cross-env": "7.0.3",
     "esbuild": "0.14.25",
     "eslint": "8.10.0",
