@@ -168,7 +168,7 @@
   },
   "dependencies": {
     "axios": "0.26.1",
-    "dayjs": "1.11.0",
+    "dayjs": "1.11.10",
     "hatena-fotolife-api": "2.0.0",
     "open": "8.4.0",
     "wsse": "5.1.0",
